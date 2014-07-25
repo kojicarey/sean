@@ -27,6 +27,18 @@ angular
         templateUrl: 'views/about.html',
         controller: 'AboutCtrl'
       })
+      .when('/create', {
+        templateUrl: 'views/create.html',
+        controller: 'CreateCtrl'
+      })
+      .when('/auction/:param1', {
+        templateUrl: 'views/auction.html',
+        controller: 'AuctionCtrl'
+      })
+      .when('/auctionlist', {
+        templateUrl: 'views/auctionlist.html',
+        controller: 'AuctionListCtrl'
+      })
       .otherwise({
         redirectTo: '/'
       });

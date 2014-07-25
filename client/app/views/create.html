@@ -1,0 +1,50 @@
+<div class="container">
+    <form name="helpForm" novalidate role="form" class="form-horizontal">
+        <div class="form-group">
+            <label class="control-label col-sm-3" for="txt-auction-title">Auction Title</label>
+            <div class="col-sm-9">
+                <input type="text" 
+                       class="form-control" 
+                       id="txt-auction-title" 
+                       data-ng-model='title' />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-3" for="txt-start-price">Starting Price</label>
+            <div class="col-sm-9">
+                <input type="number" min="0" class="form-control" id="txt-start-price"
+                       data-ng-model='currentprice'>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-3" for="endtime">End At</label>
+            <div class="col-sm-9">
+                <div class='input-group'>
+                    <input type='date' 
+                           class="form-control datetimepicker" 
+                           id='endtime' 
+                           data-ng-model='endtime'
+                           data-date-format="dddd DD MMM, h:mm A"/>
+                    <label class="input-group-addon" for='endtime'>
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </label>                    
+                </div>
+                <span class="help-block">Ending <span class='timeleft'></span></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-3" for="txt-description">Description</label>
+            <div class="col-sm-9">
+                <textarea id='txt-description' class="form-control" placeholder='About the product' style='resize:vertical'
+                          data-ng-model='description'></textarea>
+            </div>
+        </div>
+        <div class='row'>
+            <div class='col-sm-9 col-sm-offset-3'>                
+                <button data-ng-click='submit()' type="submit" class="btn btn-primary">Create Auction</button>
+            </div>
+        </div>
+
+        <input type="hidden" value="{{bidder}}" data-ng-model='auctioner' />
+    </form>
+</div>

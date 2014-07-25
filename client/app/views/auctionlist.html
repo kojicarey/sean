@@ -1,0 +1,30 @@
+<div class='container'>
+    <div class='row'>
+        <div class="col-sm-6" ng-repeat="auction in auctionsList">
+            <div class="panel panel-default {{auction.expiry}}">
+                <div class="panel-heading">
+                    <a ng-href="#/auction/{{auction.id}}">{{auction.title}}</a>
+                </div>
+                <div class="panel-body">{{auction.description}}</div>
+                <table class="table">
+                    <tr>
+                        <th>Price</th>
+                        <td>{{auction.currentprice}}</td>
+                    </tr>
+                    <tr>
+                        <th>High Bidder</th>
+                        <td>{{auction.highbidder}}</td>
+                    </tr>
+                    <tr>
+                        <th>Ending At</th>
+                        <td data-endtime="{{auction.endtimestamp}}">{{auction.endtime}}</td>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <td>{{auction.timeleft}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
