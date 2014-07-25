@@ -15,10 +15,10 @@ angular.module('clientApp')
                     auction.description = data.description ? data.description : "";
                     auction.highbidder = data.highbidder ? data.highbidder : "";
                     auction.currentprice = data.currentprice ? data.currentprice : "";
-                    auction.endtimestamp = data.endtime ? moment.unix(data.endtime) : "";
+                    auction.endtimestamp = data.endtime ? data.endtime : "";
                     auction.endtime = data.endtime ? moment.unix(data.endtime).format('dddd DD MMM, h:mm A') : "";
                     auction.timeleft = data.endtime ? moment.unix(data.endtime).fromNow() : "";
-                    auction.expiry = new Date().getTime() < auction.endtimestamp ? 'panel-default' : 'panel-warning';
+                    auction.expiry = new Date().getTime() < auction.endtimestamp * 1000 ? 'panel-default' : 'panel-warning';
 
                     $scope.auctionsList.push(auction);
                     $scope.$apply();

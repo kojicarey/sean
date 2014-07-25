@@ -16,12 +16,11 @@
                         <td>{{auction.highbidder}}</td>
                     </tr>
                     <tr>
-                        <th>Ending At</th>
-                        <td data-endtime="{{auction.endtimestamp}}">{{auction.endtime}}</td>
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <td>{{auction.timeleft}}</td>
+                        <th>Ending</th>
+                        <td data-endtime="{{auction.endtimestamp}}">
+                            {{auction.endtime}}<br/>
+                            {{auction.timeleft}}
+                        </td>
                     </tr>
                 </table>
             </div>

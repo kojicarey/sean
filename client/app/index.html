@@ -12,20 +12,30 @@
     <body ng-app="clientApp">
         <!--[if lt IE 7]><p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p><![endif]-->
         <header>
-            <div class='container'>
-                <div class="row">
-                    <div class="col-sm-12">
-                        <ul class="nav nav-pills pull-right">
+            <nav class="navbar navbar-default" role="navigation">
+                <div class="container">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" ng-href="/">itsy.bid</a>
+                    </div>
+
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse pull-right" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav">
                             <li class="active"><a ng-href="#">Home</a></li>
                             <li><a ng-href="#/create">Create</a></li>
                             <li><a ng-href="#/auctionlist">Auctions</a></li>
                             <li><a ng-href="#/about">About</a></li>
-                            <li><a ng-href="#">Contact</a></li>
                         </ul>
-                        <h3 class="text-muted">itsy.bid</h3>
-                    </div>
-                </div>
-            </div>
+                    </div><!-- /.navbar-collapse -->
+                </div><!-- /.container-fluid -->
+            </nav>
         </header>
 
         <div ng-view=""></div>
