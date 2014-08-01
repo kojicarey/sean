@@ -1,0 +1,28 @@
+<div class="container">
+    <h1>Login</h1>
+    <form name="loginform" novalidate role="form" class="form-horizontal">
+        <div class="form-group">
+            <label class="control-label col-sm-3" for="txt-auction-title">Auction Title</label>
+            <div class="col-sm-9">
+                <input type="text" 
+                       class="form-control" 
+                       id="txt-auction-title" 
+                       data-ng-model='title' />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-3" for="txt-start-price">Starting Price</label>
+            <div class="col-sm-9">
+                <input type="number" min="0" class="form-control" id="txt-start-price"
+                       data-ng-model='currentprice'>
+            </div>
+        </div>        
+        <div class='row'>
+            <div class='col-sm-9 col-sm-offset-3'>                
+                <button data-ng-click='login()' type="submit" class="btn btn-primary">Create Auction</button>
+            </div>
+        </div>
+
+        <input type="hidden" value="{{bidder}}" data-ng-model='auctioner' />
+    </form>
+</div>

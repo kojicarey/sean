@@ -8,30 +8,36 @@
  * Controller of the clientApp
  */
 angular.module('clientApp')
-        .controller('CreateCtrl', function($scope) {
-            var auctions = new Firebase("https://itsybid.firebaseio.com/auction");
+        .controller('CreateCtrl', ['$scope', 'authservice', function($scope) {
+                $(window).on('authenticated', function(event, userData) {
+                    console.log(userData);
+                    $scope.sellerId = userData.id;
+                    $scope.sellerName = userData.displayName;
+                    $scope.$apply();
+                });
 
-            $scope.now = new Date().getTime();
+                var auctions = new Firebase('https://itsybid.firebaseio.com/auction');
+                $scope.now = new Date().getTime();
 
-            $('.datetimepicker')
-                    .on('dp.change', function(event) {
-                        $('.help-block .timeleft').text(event.date.fromNow());
-                    })
-                    .datetimepicker()
-                    .data("DateTimePicker")
-                    .setMinDate(new Date());
+                $('.datetimepicker')
+                        .on('dp.change', function(event) {
+                            $('.help-block .timeleft').text(event.date.fromNow());
+                        })
+                        .datetimepicker()
+                        .data('DateTimePicker')
+                        .setMinDate(new Date());
 
-            $scope.submit = function() {
-                var test = moment().format($scope.endtime, 'dddd DD MMM, h:mm A');
-                
-                var auction = {
-                    title: $scope.title,
-                    currentprice: $scope.currentprice,
-                    description: $scope.description,
-                    endtime: $('.datetimepicker').data("DateTimePicker").date.format('X')
+                $scope.submit = function() {
+                    var auction = {
+                        sellerId: $scope.sellerId,
+                        sellerName: $scope.sellerName,
+                        title: $scope.title,
+                        currentprice: $scope.currentprice,
+                        description: $scope.description,
+                        endtime: $('.datetimepicker').data('DateTimePicker').date.format('X')
+                    };
+                    auctions.push(auction);
+
+                    window.location = '/#/auctionlist';
                 };
-                var returnVal = auctions.push(auction);
-                
-                window.location = "/#/auctionlist";
-            };
-        });
+            }]);

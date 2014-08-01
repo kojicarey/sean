@@ -26,12 +26,13 @@
                     </div>
 
                     <!-- Collect the nav links, forms, and other content for toggling -->
-                    <div class="collapse navbar-collapse pull-right" id="bs-example-navbar-collapse-1">
+                    <div class="collapse navbar-collapse navbar-right" id="bs-example-navbar-collapse-1">
                         <ul class="nav navbar-nav">
                             <li class="active"><a ng-href="#">Home</a></li>
                             <li><a ng-href="#/create">Create</a></li>
                             <li><a ng-href="#/auctionlist">Auctions</a></li>
                             <li><a ng-href="#/about">About</a></li>
+                            <li><a ng-click="auth('facebook');">Login</a></li>
                         </ul>
                     </div><!-- /.navbar-collapse -->
                 </div><!-- /.container-fluid -->
@@ -67,7 +68,20 @@
                     <script src="scripts/controllers/auction.js"></script>
                     <script src="scripts/controllers/auctionlist.js"></script>
                     <script src="scripts/controllers/create.js"></script>
+                    <script src="scripts/controllers/login.js"></script>
                     <script type='text/javascript' src='//cdn.firebase.com/js/client/1.0.17/firebase.js'></script> 
+                    <script src="https://cdn.firebase.com/js/simple-login/1.6.2/firebase-simple-login.js"></script>
+
+                    <div id="fb-root"></div>
+                    <script>(function(d, s, id) {
+                            var js, fjs = d.getElementsByTagName(s)[0];
+                            if (d.getElementById(id))
+                                return;
+                            js = d.createElement(s);
+                            js.id = id;
+                            js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=488257057943365&version=v2.0";
+                            fjs.parentNode.insertBefore(js, fjs);
+                        }(document, 'script', 'facebook-jssdk'));</script>
                 </div>
             </div>
         </footer>
