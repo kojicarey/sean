@@ -7,6 +7,7 @@
  *
  * Main module of the application.
  */
+
 /* global app:true */
 var app = angular
         .module('clientApp', [
@@ -15,7 +16,8 @@ var app = angular
             'ngResource',
             'ngRoute',
             'ngSanitize',
-            'ngTouch'
+            'ngTouch',
+            'firebase'
         ]);
         
 app.config(function($routeProvider) {

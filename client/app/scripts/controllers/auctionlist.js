@@ -1,15 +1,16 @@
 'use strict';
 
-angular.module('clientApp')
-        .controller('AuctionListCtrl', ['$scope', 'authservice', function($scope) {
+app
+        .controller('AuctionListCtrl', ['$scope', 'AuctionListService', 'authservice', function($scope, AuctionListService) {
+
+                console.log(AuctionListService.get());
+
                 var auctions = new Firebase('https://itsybid.firebaseio.com/auction');
                 $scope.auctionsList = [];
 
                 $(window).on('authenticated', function(event, userData) {
                     console.log(userData);
                 });
-                
-                //console.log(typeof authservice);
 
                 function updateData() {
                     auctions.on('child_added', function(dataSnapshot) {
