@@ -14,6 +14,8 @@ angular.module('clientApp')
                 var comments = new Firebase('https://itsybid.firebaseio.com/auction/' + $routeParams.param1 + '/comments');
 
                 console.log($routeParams);
+                
+                console.log($routeParams);
 
                 var auctionData = {};
                 $scope.auction = {};
@@ -31,34 +33,31 @@ angular.module('clientApp')
                     $scope.$apply();
                 });
 
-                function updateData() {
-                    auction.on('value', function(dataSnapshot) {
-                        auctionData = dataSnapshot.val();
+                auction.on('value', function(dataSnapshot) {
+                    auctionData = dataSnapshot.val();
 
-                        $scope.auction.title = auctionData.title ? auctionData.title : 'Auction Title';
-                        $scope.auction.description = auctionData.description ? auctionData.description : 'unknown';
-                        $scope.auction.currentprice = auctionData.currentprice ? auctionData.currentprice : 0;
-                        $scope.auction.highbidder = auctionData.highbidder ? auctionData.highbidder : 'unknown';
-                        $scope.auction.endtime = auctionData.endtime ? moment.unix(auctionData.endtime).format('dddd DD MMM, h:mm A') : 'endtime';
-                        $scope.auction.timeleft = auctionData.endtime ? moment.unix(auctionData.endtime).fromNow() : 'timeleft';
-                        $scope.auction.sellerName = auctionData.sellerName ? auctionData.sellerName : 'Unknown';
+                    $scope.auction.title = auctionData.title ? auctionData.title : 'Auction Title';
+                    $scope.auction.description = auctionData.description ? auctionData.description : '';
+                    $scope.auction.currentprice = auctionData.currentprice ? auctionData.currentprice : 0;
+                    $scope.auction.highbidder = auctionData.highbidder ? auctionData.highbidder : 'No bidders yet';
+                    $scope.auction.endtime = auctionData.endtime ? moment.unix(auctionData.endtime).format('dddd DD MMM, h:mm A') : 'endtime';
+                    $scope.auction.timeleft = auctionData.endtime ? moment.unix(auctionData.endtime).fromNow() : 'timeleft';
+                    $scope.auction.sellerName = auctionData.sellerName ? auctionData.sellerName : 'Anonymous';
 
-                        $scope.bid.timestamp = Firebase.ServerValue.TIMESTAMP;
-                        $scope.bid.bidamount = Number($scope.auction.currentprice) === 0 ? 1000 : Math.ceil(Number($scope.auction.currentprice) / 1000) * 1000 + 1000;
+                    $scope.bid.timestamp = Firebase.ServerValue.TIMESTAMP;
+                    $scope.bid.bidamount = Number($scope.auction.currentprice) === 0 ? 1000 : Math.ceil(Number($scope.auction.currentprice) / 1000) * 1000 + 1000;
 
-                        $scope.open = true;
-                        function applyCheck() {
-                            if (!$scope.$$phase) { // Don't update scope if still in progress to avoid errors
-                                $scope.$apply();
-                            }
-                            else {
-                                setTimeout(applyCheck, 1000);
-                            }
+                    $scope.open = true;
+                    function applyCheck() {
+                        if (!$scope.$$phase) { // Don't update scope if still in progress to avoid errors
+                            $scope.$apply();
                         }
-                        setTimeout(applyCheck, 1000);
-                    });
-                }
-                updateData();
+                        else {
+                            setTimeout(applyCheck, 1000);
+                        }
+                    }
+                    setTimeout(applyCheck, 1000);
+                });
 
                 /**
                  * Update auction with the bid amount from the form, and the currently logged in user's name
@@ -74,19 +73,12 @@ angular.module('clientApp')
                     return $scope.bid.currentPrice;
                 };
 
-                comments.on('value', function(dataSnapshot) {
+                /**
+                 * Listens for new comments
+                 */
+                comments.on('child_added', function(dataSnapshot) {
                     var commentData = dataSnapshot.val();
-
                     $scope.commentsList.push({'username': commentData.username, 'copy': commentData.copy, 'timestamp': commentData.timestamp});
-                    function applyCheck() {
-                        if (!$scope.$$phase) { // Don't update scope if still in progress to avoid errors
-                            $scope.$apply();
-                        }
-                        else {
-                            setTimeout(applyCheck, 1000);
-                        }
-                    }
-                    setTimeout(applyCheck, 1000);
                 });
 
                 /**
@@ -99,6 +91,5 @@ angular.module('clientApp')
                         timestamp: Firebase.ServerValue.TIMESTAMP
                     };
                     comments.push(comment);
-                    $scope.$apply();
                 };
             }]);

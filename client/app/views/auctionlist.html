@@ -1,30 +1,30 @@
 <div class='container'>
     <div class='row'>
-        <div class="col-sm-6" ng-repeat="auction in auctionsList">
-            <div class="panel panel-default {{auction.expiry}}">
+        <div class="col-sm-6" ng-repeat="(auctionId, auction) in auctionList">
+            <div data-ngCloak data-auctionId='{{auction.$id}}' class="panel panel-default {{auction.expiry}}">
                 <div class="panel-heading">
-                    <a ng-href="#/auction/{{auction.id}}">{{auction.title}}</a>
+                    <a ng-href="#/auction/{{auction.$id}}">{{auction.title | capitaliseFirstLetter }}</a>
                 </div>
                 <div class="panel-body">{{auction.description}}</div>
                 <table class="table">
                     <tr>
                         <th>Price</th>
-                        <td>{{auction.currentprice}}</td>
+                        <td>{{auction.currentprice | commaThousands }}</td>
                     </tr>
                     <tr>
                         <th>High Bidder</th>
-                        <td>{{auction.highbidder}}</td>
+                        <td>{{auction.highbidder | capitaliseFirstLetter}}</td>
                     </tr>
                     <tr>
                         <th>Ending</th>
                         <td data-endtime="{{auction.endtimestamp}}">
-                            {{auction.endtime}}<br/>
-                            {{auction.timeleft}}
+                            {{auction.endtime | dateFormatter }}<br/>
+                            {{auction.timeleft | dateFromNow }}
                         </td>
                     </tr>
                     <tr>
                         <th>Seller</th>
-                        <td>{{auction.seller}}</td>
+                        <td>{{auction.seller | capitaliseFirstLetter }}</td>
                     </tr>
                 </table>
             </div>

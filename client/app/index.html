@@ -5,9 +5,18 @@
         <title></title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
+
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        <!-- build:css(.) styles/vendor.css -->
+        <!-- bower:css -->
         <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.0.0/css/bootstrap-datetimepicker.min.css" />
+        <link rel="stylesheet" href="bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
+        <!-- endbower -->
+        <!-- endbuild -->
+        <!-- build:css(.tmp) styles/main.css -->
         <link rel="stylesheet" href="styles/main.css">
+        <!-- endbuild -->
+
     </head>
     <body ng-app="clientApp">
         <!--[if lt IE 7]><p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p><![endif]-->
@@ -50,46 +59,51 @@
                 </div>
                 <div id='scripts'>
                     <!--[if lt IE 9]><script src="bower_components/es5-shim/es5-shim.js"></script><script src="bower_components/json3/lib/json3.min.js"></script><![endif]-->
+
+                    <!-- build:js(.) scripts/vendor.js -->
+                    <!-- bower:js -->
                     <script src="bower_components/jquery/dist/jquery.js"></script>
+                    <script src="bower_components/es5-shim/es5-shim.js"></script>
                     <script src="bower_components/angular/angular.js"></script>
                     <script src="bower_components/json3/lib/json3.js"></script>
                     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
-                    <script src="bower_components/moment/moment.js" type="text/javascript"></script>
-                    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.0.0/js/bootstrap-datetimepicker.min.js"></script>
                     <script src="bower_components/angular-resource/angular-resource.js"></script>
                     <script src="bower_components/angular-cookies/angular-cookies.js"></script>
                     <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
                     <script src="bower_components/angular-animate/angular-animate.js"></script>
                     <script src="bower_components/angular-touch/angular-touch.js"></script>
                     <script src="bower_components/angular-route/angular-route.js"></script>
-                    
-                    
+                    <script src="bower_components/moment/moment.js"></script>
+                    <script src="bower_components/firebase/firebase.js"></script>
+                    <script src="bower_components/firebase-simple-login/firebase-simple-login.js"></script>
+                    <script src="bower_components/mockfirebase/dist/mockfirebase.js"></script>
+                    <script src="bower_components/angularfire/dist/angularfire.min.js"></script>
+                    <script src="bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
+                    <!-- endbower -->
+                    <!-- endbuild -->
+
+                    <!-- build:js({.tmp,app}) scripts/scripts.js -->
                     <script src="scripts/app.js"></script>
-                    
-                    <!-- Services -->
-                    <script src="scripts/services/auctionList.js"></script>
-                    
-                    <!-- Controllers -->                    
+                    <script src="scripts/services/auction.js"></script>
+                    <script src="scripts/services/auth.js"></script>
                     <script src="scripts/controllers/main.js"></script>
                     <script src="scripts/controllers/about.js"></script>
                     <script src="scripts/controllers/auction.js"></script>
                     <script src="scripts/controllers/auctionlist.js"></script>
                     <script src="scripts/controllers/create.js"></script>
                     <script src="scripts/controllers/login.js"></script>
-                    
-                    <script type='text/javascript' src='//cdn.firebase.com/js/client/1.0.17/firebase.js'></script> 
-                    <script src="https://cdn.firebase.com/js/simple-login/1.6.2/firebase-simple-login.js"></script>
+                    <!-- endbuild -->
 
                     <div id="fb-root"></div>
                     <script>(function(d, s, id) {
-                            var js, fjs = d.getElementsByTagName(s)[0];
-                            if (d.getElementById(id))
-                                return;
-                            js = d.createElement(s);
-                            js.id = id;
-                            js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=488257057943365&version=v2.0";
-                            fjs.parentNode.insertBefore(js, fjs);
-                        }(document, 'script', 'facebook-jssdk'));</script>
+                                    var js, fjs = d.getElementsByTagName(s)[0];
+                                    if (d.getElementById(id))
+                                        return;
+                                    js = d.createElement(s);
+                                    js.id = id;
+                                    js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=488257057943365&version=v2.0";
+                                    fjs.parentNode.insertBefore(js, fjs);
+                                }(document, 'script', 'facebook-jssdk'));</script>
                 </div>
             </div>
         </footer>
