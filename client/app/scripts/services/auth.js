@@ -1,30 +1,53 @@
-app.factory('authservice',
-	function($firebase, FIREBASE_URL) {
-		var myRef = new Firebase('https://itsybid.firebaseio.com'); 
-		var authRef = new Firebase('https://itsybid.firebaseio.com/.info/authenticated');
-		var isNewUser = true;
+'use strict';
 
-		authRef.on('value', function(snap) {
-			if (snap.val() === true) {
-				console.log('authenticated');
-				console.log(snap.val());
-			} else {
-				var auth = new FirebaseSimpleLogin(myRef, function(error, user) {
-					if (error) {
-						window.location = '/';
-					} else if (user) {
-						if (isNewUser) {
-							myRef.child('users').child(user.uid).set({
-								displayName: user.displayName,
-								provider: user.provider,
-								provider_id: user.id
-							});
-						}
-						$(window).triggerHandler('authenticated', user);
-					} else {
-						auth.login('facebook');
-					}
-				});
-			}
-		});
-	});
+app.factory('Auth', function ($firebase, $firebaseSimpleLogin, FIREBASE_URL, $rootScope) {
+  var ref = new Firebase(FIREBASE_URL);
+  var auth = $firebaseSimpleLogin(ref);
+
+  var Auth = {
+    register: function (user) {
+      return auth.$createUser(user.email, user.password);
+    },
+    createProfile: function(user) {
+      var profile = {
+        username: user.username,
+        md5_hash: user.md5_hash
+      };
+
+      var profileRef = $firebase(ref.child('profile'));
+      return profileRef.$set(user.uid, profile);
+    },
+    login: function (user) {
+      return auth.$login('password', user);
+    },
+    logout: function () {
+      auth.$logout();
+    },
+    resolveUser: function() {
+      return auth.$getCurrentUser();
+    },
+    signedIn: function() {
+      return !!Auth.user.provider;
+    },
+    user: {}
+  };
+
+  $rootScope.$on('$firebaseSimpleLogin:login', function(e, user) {
+    console.log('logged in');
+    angular.copy(user, Auth.user);
+    Auth.user.profile = $firebase(ref.child('profile').child(Auth.user.uid)).$asObject();
+
+    console.log(Auth.user);
+  });
+  $rootScope.$on('$firebaseSimpleLogin:logout', function() {
+    console.log('logged out');
+
+    if (Auth.user && Auth.user.profile) {
+      Auth.user.profile.$destroy();
+    }
+
+    angular.copy({}, Auth.user);
+  });
+
+  return Auth;
+});

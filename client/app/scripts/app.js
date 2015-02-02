@@ -21,6 +21,8 @@
     'firebase'
     ]);
 
+app.constant('FIREBASE_URL', 'https://itsybid.firebaseio.com/');
+
  app.config(function($routeProvider) {
     $routeProvider
     .when('/', {
@@ -45,41 +47,56 @@
     })
     .when('/login', {
         templateUrl: 'views/login.html',
-        controller: 'LoginCtrl'
-    })
+        controller: 'AuthCtrl',
+        resolve: {
+          user: function(Auth) {
+            console.log(Auth.resolveUser());
+            return Auth.resolveUser();
+        }
+    }
+})
+    .when('/register', {
+        templateUrl: 'views/register.html',
+        controller: 'AuthCtrl',
+        resolve: {
+          user: function(Auth) {
+            return Auth.resolveUser();
+        }
+    }
+})
     .otherwise({
         redirectTo: '/'
     });
 });
 
- app.filter('dateFormatter', function() {               
-     return function(unformattedDate, emptyStrText) { 
-        var formattedDate = moment.unix(unformattedDate).format('dddd DD MMM, h:mm A');
-        if(formattedDate === "" && emptyStrText) {
-            formattedDate = emptyStrText;
-        }
-        return formattedDate;
+app.filter('dateFormatter', function() {               
+   return function(unformattedDate, emptyStrText) { 
+    var formattedDate = moment.unix(unformattedDate).format('dddd DD MMM, h:mm A');
+    if(formattedDate === "" && emptyStrText) {
+        formattedDate = emptyStrText;
     }
+    return formattedDate;
+}
 });
- app.filter('dateFromNow', function() {               
-     return function(unformattedDate, emptyStrText) { 
-        var formattedDate = moment.unix(unformattedDate).fromNow();
-        if(formattedDate === "" && emptyStrText) {
-            formattedDate = emptyStrText;
-        }
-        return formattedDate;
+app.filter('dateFromNow', function() {               
+   return function(unformattedDate, emptyStrText) { 
+    var formattedDate = moment.unix(unformattedDate).fromNow();
+    if(formattedDate === "" && emptyStrText) {
+        formattedDate = emptyStrText;
     }
+    return formattedDate;
+}
 });
- app.filter('commaThousands', function() {               
-     return function(inputNumber, emptyStrText) { 
-        var formattedNumber = inputNumber.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        if(formattedNumber === "" && emptyStrText) {
-            formattedNumber = emptyStrText;
-        }
-        return formattedNumber;
+app.filter('commaThousands', function() {               
+   return function(inputNumber, emptyStrText) { 
+    var formattedNumber = inputNumber.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    if(formattedNumber === "" && emptyStrText) {
+        formattedNumber = emptyStrText;
     }
+    return formattedNumber;
+}
 });
- app.filter('capitaliseFirstLetter', function() {               
+app.filter('capitaliseFirstLetter', function() {               
     return function(inputString, emptyStrText) { 
         if(inputString) {
             var formattedString = inputString.charAt(0).toUpperCase() + inputString.slice(1);
@@ -96,5 +113,3 @@
     }
 });
 
-
- app.constant('FIREBASE_URL', 'https://itsybid.firebaseio.com/');

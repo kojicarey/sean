@@ -41,7 +41,7 @@
                             <li><a ng-href="#/create">Create</a></li>
                             <li><a ng-href="#/auctionlist">Auctions</a></li>
                             <li><a ng-href="#/about">About</a></li>
-                            <li><a ng-click="auth('facebook');">Login</a></li>
+                            <li><a ng-href="#/login">Login</a></li>
                         </ul>
                     </div><!-- /.navbar-collapse -->
                 </div><!-- /.container-fluid -->
@@ -84,13 +84,16 @@
 
                     <!-- build:js({.tmp,app}) scripts/scripts.js -->
                     <script src="scripts/app.js"></script>
+                    
                     <script src="scripts/services/auction.js"></script>
                     <script src="scripts/services/auth.js"></script>
+
                     <script src="scripts/controllers/main.js"></script>
                     <script src="scripts/controllers/about.js"></script>
                     <script src="scripts/controllers/auction.js"></script>
                     <script src="scripts/controllers/auctionlist.js"></script>
                     <script src="scripts/controllers/create.js"></script>
+                    <script src="scripts/controllers/auth.js"></script>
                     <script src="scripts/controllers/login.js"></script>
                     <!-- endbuild -->
 
