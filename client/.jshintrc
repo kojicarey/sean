@@ -26,6 +26,6 @@
     "FirebaseSimpleLogin" : false,
     "$location" : false,
     "moment" : false,
-    'Firebase': false
+    "Firebase": false
   }
 }

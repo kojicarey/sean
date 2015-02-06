@@ -1,22 +1,26 @@
 <div id='auction-meta-box' class="container container-fluid">
+
     <div class="page-header">
         <h1 id="meta-name" class="meta-field">{{auction.title}}</h1>
     </div>
-    <div class='row'>
-        <div class="col-sm-3">Current Price</div>
-        <div class="col-sm-9">{{auction.currentprice}}</div>
-    </div>
-    <div class='row'>
-        <div class="col-sm-3">Highest Bidder</div>
-        <div class="col-sm-9">{{auction.highbidder}}</div>
-    </div>
+    <div class='meta' ng-repeat="topBid in topBidArr">
+        <div class='row'>
+            <div class="col-sm-3">Current Price</div>
+            <div class="col-sm-9">{{topBid.bidamount}}</div>
+        </div>
+        <div class='row'>
+            <div class="col-sm-3">Highest Bidder</div>
+            <div class="col-sm-9">{{topBid.bidderName}}</div>
+        </div>
+    </div>    
+
     <div class='row'>
         <div class="col-sm-3">Ending At</div>
         <div class="col-sm-9">{{auction.endtime}}</div>
     </div>
     <div class='row'>
         <div class="col-sm-3">Time Left</div>
-        <div class="col-sm-9">{{auction.timeleft}}</div>
+        <div class="col-sm-9" data-endtime="{{auction.endtime}}"></div>
     </div>      
     <div class='row'>
         <div class="col-sm-3">Description</div>
@@ -25,9 +29,9 @@
     <div class='row'>
         <div class="col-sm-3">Seller</div>
         <div class="col-sm-9">{{auction.sellerName}}</div>
-    </div>      
+    </div>
     <hr/>
-    <form name="helpForm" novalidate role="form" class="form-horizontal">
+    <form name="helpForm" novalidate role="form" class="form-horizontal" ng-submit="placeBid()" >
         <div class="well">
             <div class="form-group">
                 <label for="bid-amount" class="col-sm-3 control-label">
@@ -36,7 +40,7 @@
                 <div class="col-sm-9">
                     <input id='bid-amount' 
                            type="text" 
-                           data-ng-model="bid.bidamount"
+                           data-ng-model="bidamount"
                            class="form-control"
                            required
                            placeholder="bid amount"/> 
@@ -46,10 +50,7 @@
             <div class="form-group">
                 <div class="col-sm-offset-3 col-sm-9">
                     <button id="btn_bid" 
-                            class="btn btn-default" 
-                            type="number"
-                            data-ng-disabled="!open" 
-                            data-ng-click="submit(bidform)">Place Bid</button>
+                            class="btn btn-default">Place Bid</button>
                 </div>
             </div>
         </div>
@@ -57,54 +58,38 @@
     </form>
 </div>
 
-<div id="toolbox" style="display:none">
-    <div class='row auction-listing'>
-        <a class='' href="#viewAuction" title='View Auction'>
-            <div class="auction-name col-sm-2">Auction Name</div>
-            <div class="auction-bid col-sm-2">Current Bid</div>
-            <div class="auction-left col-sm-2">Time Left</div>
-        </a>
+<div ng-repeat="bid in bids | reverse" class="row cmt">
+    <div class="col-sm-3" data-bidderId='{{ bid.bidderId}}'>{{ bid.bidderName}}</div>
+    <div class="col-sm-3">{{ bid.bidamount}}</div>
+    <div class="col-sm-3">{{ bid.timestamp}}</div>
+</div>
+<div ng-repeat="comment in comments" class="row cmt">
+    <div class="col-md-12">
+        <p>{{ comment.text}}</p>
+        <p class="author">posted by
+            <a ng-href="#/users/{{ comment.creatorUID}}">
+                {{ comment.creator}}
+            </a>
+            <a ng-href=""
+               ng-click="deleteComment(comment)"
+               ng-show="signedIn() && comment.creatorUID === user.uid"
+               style="cursor: pointer;">
+                (delete)
+            </a>
+        </p>
     </div>
 </div>
 
+<div class="cmt-form">
+    <div ng-hide="signedIn()">
+        <p><a href="#/login">Sign in</a> to post a comment</p>
+    </div>
 
-<div class="container">
-    <div class="row">
-        <div class="col-sm-12">
-            <h3>Comments</h3>
-        </div>
-    </div>
-    <div class="row" ng-repeat="comment in commentsList">
-        <div class="col-sm-12">
-            <h4>{{$index+1}}. {{comment.username}}</h4>
-            {{comment.copy}}
-        </div>
-    </div>
-    <form name="helpForm" novalidate role="form" class="form-horizontal">
-        <div class="well">
-            <div class="form-group">
-                <label for="bid-amount" class="col-sm-3 control-label">
-                    Your comment
-                </label>
-                <div class="col-sm-9">
-                    <textarea id='new-comment-copy' 
-                           type="text" 
-                           data-ng-model="newComment.copy"
-                           class="form-control"
-                           required
-                           placeholder="Comment text here"></textarea> 
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="col-sm-offset-3 col-sm-9">
-                    <button id="btn_postComment" 
-                            class="btn btn-default" 
-                            type="number"
-                            data-ng-disabled="!open" 
-                            data-ng-click="postComment()">Post Comment</button>
-                </div>
-            </div>
-        </div>
-        <input type="hidden" value="{{bid.bidderName}}" />
-    </form>    
+    <form ng-show="signedIn()" ng-submit="addComment()">
+        <textarea
+            ng-model="commentText"
+            placeholder="Post a Comment"
+            class="form-control"></textarea><br />
+        <input type="submit" value="Post Comment" class="btn btn-primary" />
+    </form>
 </div>

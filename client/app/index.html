@@ -20,35 +20,8 @@
     </head>
     <body ng-app="clientApp">
         <!--[if lt IE 7]><p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p><![endif]-->
-        <header>
-            <nav class="navbar navbar-default" role="navigation">
-                <div class="container">
-                    <!-- Brand and toggle get grouped for better mobile display -->
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                        <a class="navbar-brand" ng-href="/">itsy.bid</a>
-                    </div>
-
-                    <!-- Collect the nav links, forms, and other content for toggling -->
-                    <div class="collapse navbar-collapse navbar-right" id="bs-example-navbar-collapse-1">
-                        <ul class="nav navbar-nav">
-                            <li class="active"><a ng-href="#">Home</a></li>
-                            <li><a ng-href="#/create">Create</a></li>
-                            <li><a ng-href="#/auctionlist">Auctions</a></li>
-                            <li><a ng-href="#/about">About</a></li>
-                            <li><a ng-href="#/login">Login</a></li>
-                        </ul>
-                    </div><!-- /.navbar-collapse -->
-                </div><!-- /.container-fluid -->
-            </nav>
-        </header>
-
-        <div ng-view=""></div>
+        <div ng-include="'views/nav.html'"></div>
+        <div class="container" ng-view=""></div>
 
         <footer>
             <div class='container'>
@@ -84,29 +57,21 @@
 
                     <!-- build:js({.tmp,app}) scripts/scripts.js -->
                     <script src="scripts/app.js"></script>
-                    
-                    <script src="scripts/services/auction.js"></script>
-                    <script src="scripts/services/auth.js"></script>
 
-                    <script src="scripts/controllers/main.js"></script>
-                    <script src="scripts/controllers/about.js"></script>
-                    <script src="scripts/controllers/auction.js"></script>
-                    <script src="scripts/controllers/auctionlist.js"></script>
-                    <script src="scripts/controllers/create.js"></script>
+                    <script src="scripts/controllers/posts.js"></script>
+                    <script src="scripts/controllers/postview.js"></script>
+                    <script src="scripts/controllers/nav.js"></script>
                     <script src="scripts/controllers/auth.js"></script>
-                    <script src="scripts/controllers/login.js"></script>
+                    <script src="scripts/controllers/profile.js"></script>
+
+                    <script src="scripts/filters/url.js"></script>
+                    <script src="scripts/filters/orderDesc.js"></script>
+
+                    <script src="scripts/services/post.js"></script> <!-- Manages CRUD on posts -->
+                    <script src="scripts/services/auth.js"></script>
+                    <script src="scripts/services/profile.js"></script>
                     <!-- endbuild -->
 
-                    <div id="fb-root"></div>
-                    <script>(function(d, s, id) {
-                                    var js, fjs = d.getElementsByTagName(s)[0];
-                                    if (d.getElementById(id))
-                                        return;
-                                    js = d.createElement(s);
-                                    js.id = id;
-                                    js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=488257057943365&version=v2.0";
-                                    fjs.parentNode.insertBefore(js, fjs);
-                                }(document, 'script', 'facebook-jssdk'));</script>
                 </div>
             </div>
         </footer>
