@@ -20,6 +20,9 @@ app.controller('PostsCtrl', function ($scope, Post, Auth, Helper, $location) {
         $scope.timeLeftString = moment($scope.endTime, 'dddd DD MMM, h:mm A').fromNow();
     };
 
+    Helper.jQueryDT();
+
+
     $scope.createAuction = function () {
         var post = {
             title: $scope.title,

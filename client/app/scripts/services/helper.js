@@ -3,16 +3,16 @@
  * Using 3 way data binding
  */
 app.factory('Helper', function ($window) {
-
-    jQuery('.datetimepicker').datetimepicker({
-        'minDate': moment().add(1, 'minute'),
-        'defaultDate': moment().add(1, 'hour').minutes(0),
-        'sideBySide': true,
-        'stepping': 15,
-        'useCurrent': false
-    });
-
     var Helper = {
+        jQueryDT: function () {
+            jQuery('.datetimepicker').datetimepicker({
+                'minDate': moment().add(1, 'minute'),
+                'defaultDate': moment().add(1, 'hour').minutes(0),
+                'sideBySide': true,
+                'stepping': 15,
+                'useCurrent': false
+            });
+        }
     };
     return Helper;
 });
