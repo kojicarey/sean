@@ -10,7 +10,7 @@
                 <table class="table">
                     <tr>
                         <th>Price</th>
-                        <td>{{auction.currentprice| commaThousands }}</td>
+                        <td ng-bind="topBidArr(auction.$id) | commaThousands"></td>
                     </tr>
                     <tr>
                         <th>High Bidder</th>
