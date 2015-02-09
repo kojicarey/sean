@@ -1,3 +1,5 @@
+'use strict';
+
 app.filter('reverse', function () {
     function toArray(list) {
         var k, out = [];
