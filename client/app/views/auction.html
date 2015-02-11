@@ -5,31 +5,29 @@
     </div>
     <div class='row'>
         <div class="col-sm-3">Current Price</div>
-        <div class="col-sm-9">{{currentPrice()}}</div>
+        <div class="col-sm-9">{{currentPrice() | commaThousands}}</div>
     </div>
     <div class='row'>
         <div class="col-sm-3">Highest Bidder</div>
-        <div class="col-sm-9">{{currentWinner}}</div>
+        <div class="col-sm-9">{{auction.winningBidder| capitaliseFirstLetter}}</div>
     </div>
-
-    <div class='row'>
+    <!-- <div class='row'>
         <div class="col-sm-3">Ending At</div>
         <div class="col-sm-9">{{auction.endTime| formatTime}}</div>
-    </div>
-    <div class='row'>
+    </div>-->
+    <!-- <div class='row'>
         <div class="col-sm-3">Time Left</div>
         <div class="col-sm-9">{{auction.endTime| timeLeft}}</div>
-    </div>      
+    </div>-->      
+    <div class='row'>
+        <div class="col-sm-3">Seller</div>
+        <div class="col-sm-9">{{auction.creatorName| capitaliseFirstLetter}}</div>
+    </div>
     <div class='row'>
         <div class="col-sm-3">Description</div>
         <div class="col-sm-9">{{auction.description}}</div>
     </div>      
-    <div class='row'>
-        <div class="col-sm-3">Seller</div>
-        <div class="col-sm-9">{{auction.creatorName}}</div>
-    </div>
     <hr/>
-
 </div>
 
 <div class='row'>
@@ -66,15 +64,16 @@
                             <div class="input-group">                                
                                 <input id="bid-amount"
                                        type="number"
-                                       ng-bind="bidamount"
+                                       ng-model="bidamount"
                                        class="form-control" 
-                                       placeholder="Minimum increment is 1000">
+                                       placeholder="Minimum increment is 1000" />
                                 <span class="input-group-btn">
                                     <button ng-click="placeBid()"
                                             class="btn btn-default" 
                                             type="button">Bid</button>
                                 </span>
                             </div><!-- /input-group -->
+                            <p>{{errorMsg}}</p>
                         </div>
                     </div>
                 </form>
@@ -89,9 +88,9 @@
                 </thead>
                 <tbody>
                     <tr ng-repeat="bid in bids| reverse">
-                        <td data-bidderId='{{ bid.bidderId}}'>{{ bid.bidderName}}</td>
+                        <td data-bidderId='{{ bid.bidderId}}'>{{ bid.bidderName| capitaliseFirstLetter}}</td>
                         <td class='text-right'>{{ bid.bidamount | number : 0}}</td>
-                        <td class='text-right'>{{ bid.timestamp}}</td>
+                        <td class='text-right'>{{ bid.timestamp | formatTimeShort}}</td>
                     </tr>
                 </tbody>
             </table>

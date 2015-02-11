@@ -5,8 +5,13 @@
  * @param global $scope This object contains all the global variables
  * @param $resource Post Created by the Post factory service
  */
-app.controller('PostsCtrl', ['$scope', 'Post', 'Auth', 'Helper', '$location', function ($scope, Post, Auth, Helper, $location) {
-        $scope.posts = Post.all;
+app.controller('PostsCtrl', ['$scope', 'Post', 'Auth', 'Helper', '$location', '$routeParams', function ($scope, Post, Auth, Helper, $location, $routeParams) {
+        if (!!$routeParams.auctionStatus) {
+            $scope.posts = Post.auctionStatus($routeParams.auctionStatus);
+        }
+        else {
+            $scope.posts = Post.all;
+        }
 
         $scope.user = Auth.user;
 
@@ -31,6 +36,7 @@ app.controller('PostsCtrl', ['$scope', 'Post', 'Auth', 'Helper', '$location', fu
                 creatorName: $scope.user.profile.username,
                 createTime: Firebase.ServerValue.TIMESTAMP,
                 startPrice: $scope.startPrice,
+                status: 'pending',
                 endTime: moment($scope.endTime, 'dddd DD MMM, h:mm A').unix() * 100 //Firebase uses milliseconds offset, but we want to round to seconds
             };
             Post.create(post).then(function (ref) {

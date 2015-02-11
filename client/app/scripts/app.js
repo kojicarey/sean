@@ -29,7 +29,7 @@ app.config(function ($routeProvider) {
                 templateUrl: 'views/landing.html',
                 controller: 'PostsCtrl'
             })
-            .when('/auctions', {
+            .when('/auctions/:auctionStatus', {
                 templateUrl: 'views/auctions.html',
                 controller: 'PostsCtrl'
             })

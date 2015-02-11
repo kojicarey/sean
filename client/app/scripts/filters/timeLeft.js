@@ -13,13 +13,9 @@ app.filter('formatTime', function () {
     };
 });
 
-app.filter('dateFormatter', function () {
-    return function (unformattedDate, emptyStrText) {
-        var formattedDate = moment.unix(unformattedDate).format('dddd DD MMM, h:mm A');
-        if (formattedDate === "" && emptyStrText) {
-            formattedDate = emptyStrText;
-        }
-        return formattedDate;
+app.filter('formatTimeShort', function () {
+   return function (str) {
+        return moment(str).format('DD/MM h:mmA');
     };
 });
 app.filter('dateFromNow', function () {

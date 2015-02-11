@@ -10,22 +10,22 @@
                 <table class="table">
                     <tr>
                         <th>Price</th>
-                        <td ng-bind="topBidArr(auction.$id) | commaThousands"></td>
+                        <td>{{auction.winningBidderAmount| commaThousands}}</td>
                     </tr>
                     <tr>
                         <th>High Bidder</th>
-                        <td>{{auction.highbidder| capitaliseFirstLetter}}</td>
+                        <td>{{auction.winningBidder| capitaliseFirstLetter}}</td>
                     </tr>
                     <tr>
                         <th>Ending</th>
                         <td data-endtime="{{auction.endtimestamp}}">
-                            {{auction.endtime| dateFormatter }}<br/>
+                            {{auction.endtime| formatTime }}<br/>
                             {{auction.timeleft| dateFromNow }}
                         </td>
                     </tr>
                     <tr>
                         <th>Seller</th>
-                        <td>{{auction.seller| capitaliseFirstLetter }}</td>
+                        <td>{{auction.creatorName| capitaliseFirstLetter }}</td>
                     </tr>
                 </table>
             </div>

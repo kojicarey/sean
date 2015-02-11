@@ -10,28 +10,36 @@ app.controller('PostViewCtrl', ['$scope', '$routeParams', 'Post', 'Auth', '$fire
         $scope.user = Auth.user;
         $scope.signedIn = Auth.signedIn;
         $scope.placeBid = function (increment) {
-
+            $scope.errorMsg = '';
             if (!!increment) { // quick bid button pushed
                 $scope.bidamount = $scope.currentPrice() + increment;
             }
-            var bid = {
-                bidderName: $scope.user.profile.username,
-                bidderId: $scope.user.profile.uid,
-                timestamp: Firebase.ServerValue.TIMESTAMP,
-                bidamount: $scope.bidamount
-            };
-            $scope.bids.$add(bid).then(function (bidRef) {
 
-                var winningBid = {
-                    winningBidder: bid.bidderName,
-                    winningBidderUID: bid.bidderId,
-                    winningBidderAmount: bid.bidamount,
-                    winningBidderBidId: bidRef.name()
+            if ($scope.bidamount >= ($scope.currentPrice() + 1000)) {
+                var bid = {
+                    bidderName: $scope.user.profile.username,
+                    bidderId: $scope.user.profile.uid,
+                    timestamp: Firebase.ServerValue.TIMESTAMP,
+                    bidamount: $scope.bidamount
                 };
-                //debugger;
-                $firebase(new Firebase('https://itsybid.firebaseio.com/auction/' + $routeParams.auctionId)).$update(winningBid);
-            });
-            $scope.bidamount = '';
+                $scope.bids.$add(bid).then(function (bidRef) {
+
+                    var winningBid = {
+                        winningBidder: bid.bidderName,
+                        winningBidderUID: bid.bidderId,
+                        winningBidderAmount: bid.bidamount,
+                        winningBidderBidId: bidRef.name()
+                    };
+                    //debugger;
+                    $firebase(new Firebase('https://itsybid.firebaseio.com/auction/' + $routeParams.auctionId)).$update(winningBid);
+                });
+
+                $scope.bidamount = '';
+            }
+            else {
+                $scope.errorMsg = 'Minimum bid is ' + ($scope.currentPrice() + 1000);
+                console.log($scope.errorMsg);
+            }
         };
         $scope.currentPrice = function () {
 
@@ -52,7 +60,8 @@ app.controller('PostViewCtrl', ['$scope', '$routeParams', 'Post', 'Auth', '$fire
             var comment = {
                 text: $scope.commentText,
                 creator: $scope.user.profile.username,
-                creatorUID: $scope.user.profile.uid
+                creatorUID: $scope.user.profile.uid,
+                timestamp: Firebase.ServerValue.TIMESTAMP
             };
             $scope.comments.$add(comment);
             $scope.commentText = '';
