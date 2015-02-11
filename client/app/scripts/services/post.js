@@ -16,16 +16,19 @@ app.factory('Post', ['$firebase', 'FIREBASE_URL', function ($firebase, FIREBASE_
              * Retrieves all post objects (as firebase)
              */
             all: posts,
-            
-            auctionStatus: function (auctionStatus) {
-                $firebase(refPosts.orderByChild("auctionStatus").equalTo(auctionStatus)).$asArray();
-            },
             /**
              * Create a new post and add it to the repository
              * @param {type} post
              * @returns {undefined}
              */
+
+            updateStatus: function (auctionId, newStatus) {
+                return $firebase(refPosts.child(auctionId)).$set('auctionStatus', newStatus);
+
+            },
             create: function (post) {
+                post.auctionStatus = 'pending';
+                post.winningBidderAmount = post.startPrice;
                 return posts
                         .$add(post)
                         .then(function (postRef) {

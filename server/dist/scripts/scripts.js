@@ -24,7 +24,7 @@ app.config([
     $routeProvider.when('/', {
       templateUrl: 'views/landing.html',
       controller: 'PostsCtrl'
-    }).when('/auctions', {
+    }).when('/auctions/:auctionStatus', {
       templateUrl: 'views/auctions.html',
       controller: 'PostsCtrl'
     }).when('/about', { templateUrl: 'views/about.html' }).when('/register', {
@@ -88,8 +88,16 @@ app.controller('PostsCtrl', [
   'Auth',
   'Helper',
   '$location',
-  function ($scope, Post, Auth, Helper, $location) {
+  '$routeParams',
+  function ($scope, Post, Auth, Helper, $location, $routeParams) {
+    Helper.jQueryDT();
     $scope.posts = Post.all;
+    if ($routeParams.auctionStatus === 'won') {
+      $scope.filterStatus = 'complete';
+      $scope.posts = Post.all;
+    } else {
+      $scope.filterStatus = $routeParams.auctionStatus;
+    }
     $scope.user = Auth.user;
     $scope.deletePost = function (post) {
       Post.delete(post);
@@ -99,7 +107,11 @@ app.controller('PostsCtrl', [
       console.log(moment($scope.endTime, 'dddd DD MMM, h:mm A').fromNow());
       $scope.timeLeftString = moment($scope.endTime, 'dddd DD MMM, h:mm A').fromNow();
     };
-    Helper.jQueryDT();
+    $scope.activateAuction = function (auctionId) {
+      Post.updateStatus(auctionId, 'complete').then(function () {
+        $location.path('/auction/' + auctionId);
+      });
+    };
     $scope.createAuction = function () {
       var post = {
           title: $scope.title,
@@ -108,6 +120,7 @@ app.controller('PostsCtrl', [
           creatorName: $scope.user.profile.username,
           createTime: Firebase.ServerValue.TIMESTAMP,
           startPrice: $scope.startPrice,
+          status: 'pending',
           endTime: moment($scope.endTime, 'dddd DD MMM, h:mm A').unix() * 100
         };
       Post.create(post).then(function (ref) {
@@ -135,27 +148,33 @@ app.controller('PostViewCtrl', [
     $scope.user = Auth.user;
     $scope.signedIn = Auth.signedIn;
     $scope.placeBid = function (increment) {
+      $scope.errorMsg = '';
       if (!!increment) {
         // quick bid button pushed
         $scope.bidamount = $scope.currentPrice() + increment;
       }
-      var bid = {
-          bidderName: $scope.user.profile.username,
-          bidderId: $scope.user.profile.uid,
-          timestamp: Firebase.ServerValue.TIMESTAMP,
-          bidamount: $scope.bidamount
-        };
-      $scope.bids.$add(bid).then(function (bidRef) {
-        var winningBid = {
-            winningBidder: bid.bidderName,
-            winningBidderUID: bid.bidderId,
-            winningBidderAmount: bid.bidamount,
-            winningBidderBidId: bidRef.name()
+      if ($scope.bidamount >= $scope.currentPrice() + 1000) {
+        var bid = {
+            bidderName: $scope.user.profile.username,
+            bidderId: $scope.user.profile.uid,
+            timestamp: Firebase.ServerValue.TIMESTAMP,
+            bidamount: $scope.bidamount
           };
-        //debugger;
-        $firebase(new Firebase('https://itsybid.firebaseio.com/auction/' + $routeParams.auctionId)).$update(winningBid);
-      });
-      $scope.bidamount = '';
+        $scope.bids.$add(bid).then(function (bidRef) {
+          var winningBid = {
+              winningBidder: bid.bidderName,
+              winningBidderUID: bid.bidderId,
+              winningBidderAmount: bid.bidamount,
+              winningBidderBidId: bidRef.name()
+            };
+          //debugger;
+          $firebase(new Firebase('https://itsybid.firebaseio.com/auction/' + $routeParams.auctionId)).$update(winningBid);
+        });
+        $scope.bidamount = '';
+      } else {
+        $scope.errorMsg = 'Minimum bid is ' + ($scope.currentPrice() + 1000);
+        console.log($scope.errorMsg);
+      }
     };
     $scope.currentPrice = function () {
       if (!$scope.auction.winningBidder) {
@@ -173,7 +192,8 @@ app.controller('PostViewCtrl', [
       var comment = {
           text: $scope.commentText,
           creator: $scope.user.profile.username,
-          creatorUID: $scope.user.profile.uid
+          creatorUID: $scope.user.profile.uid,
+          timestamp: Firebase.ServerValue.TIMESTAMP
         };
       $scope.comments.$add(comment);
       $scope.commentText = '';
@@ -331,13 +351,9 @@ app.filter('formatTime', function () {
     return moment(str).format('dddd DD MMM, h:mm A');
   };
 });
-app.filter('dateFormatter', function () {
-  return function (unformattedDate, emptyStrText) {
-    var formattedDate = moment.unix(unformattedDate).format('dddd DD MMM, h:mm A');
-    if (formattedDate === '' && emptyStrText) {
-      formattedDate = emptyStrText;
-    }
-    return formattedDate;
+app.filter('formatTimeShort', function () {
+  return function (str) {
+    return moment(str).format('DD/MM h:mmA');
   };
 });
 app.filter('dateFromNow', function () {
@@ -410,7 +426,12 @@ app.factory('Post', [
     // pass reference into $firebase, which provdes wrapper helper functions
     var Post = {
         all: posts,
+        updateStatus: function (auctionId, newStatus) {
+          return $firebase(refPosts.child(auctionId)).$set('auctionStatus', newStatus);
+        },
         create: function (post) {
+          post.auctionStatus = 'pending';
+          post.winningBidderAmount = post.startPrice;
           return posts.$add(post).then(function (postRef) {
             $firebase(refUserPosts.child(post.creatorUID)).$push(postRef.name());
             return postRef;

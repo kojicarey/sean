@@ -1,0 +1,43 @@
+<div class="container profile">
+    <div class="row">
+        <div class="col-sm-1">
+            <img ng-src="http://www.gravatar.com/avatar/{{ user.md5_hash}}" class="prof-img" />
+        </div>
+
+        <div class="col-sm-10">
+            <span class="name">{{ user.username}}'s won auctions</span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6" ng-repeat="(key,post) in posts">
+            <div data-ngCloak data-auctionId='{{post.$id}}' class="panel panel-default {{post.expiry}} {{post.auctionStatus}}">
+                <div class="panel-heading">
+                    <a ng-href="#/auction/{{post.$id}}">{{post.title| capitaliseFirstLetter }}</a>
+                </div>
+                <div class="panel-body">{{post.description}}</div>
+                <table class="table">
+                    <tr>
+                        <th>Price</th>
+                        <td>{{post.winningBidderAmount| commaThousands}}</td>
+                    </tr>
+                    <tr>
+                        <th>High Bidder</th>
+                        <td>{{post.winningBidder| capitaliseFirstLetter}}</td>
+                    </tr>
+                    <tr>
+                        <th>Ending</th>
+                        <td data-endtime="{{post.endtimestamp}}">
+                            {{post.endtime| formatTime }}<br/>
+                            {{post.timeleft| dateFromNow }}
+                        </td>
+                    </tr>
+                    <tr ng-if="post.auctionStatus === 'complete'">
+                        <th>Seller</th>
+                        <td>{{post.creatorName| capitaliseFirstLetter }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

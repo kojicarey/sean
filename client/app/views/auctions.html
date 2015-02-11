@@ -1,8 +1,8 @@
 <div class='container'>
     <div class='row'>
-        <div class="col-sm-6" ng-repeat="auction in posts">
+        <div class="col-sm-6" ng-repeat="auction in posts" ng-if="auction.auctionStatus===filterStatus">
 
-            <div data-ngCloak data-auctionId='{{auction.$id}}' class="panel panel-default {{auction.expiry}}">
+            <div data-ngCloak data-auctionId='{{auction.$id}}' class="panel panel-default {{auction.expiry}} {{auction.auctionStatus}}">
                 <div class="panel-heading">
                     <a ng-href="#/auction/{{auction.$id}}">{{auction.title| capitaliseFirstLetter }}</a>
                 </div>
@@ -23,9 +23,13 @@
                             {{auction.timeleft| dateFromNow }}
                         </td>
                     </tr>
-                    <tr>
+                    <tr ng-if="auction.auctionStatus==='complete'">
                         <th>Seller</th>
                         <td>{{auction.creatorName| capitaliseFirstLetter }}</td>
+                    </tr>
+                    <tr ng-if="auction.auctionStatus!=='complete'">
+                        <th>Seller</th>
+                        <td><button class='btn btn-default' ng-click='activateAuction(auction.$id)'>Nominate</button></td>
                     </tr>
                 </table>
             </div>

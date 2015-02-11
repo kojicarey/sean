@@ -6,11 +6,16 @@
  * @param $resource Post Created by the Post factory service
  */
 app.controller('PostsCtrl', ['$scope', 'Post', 'Auth', 'Helper', '$location', '$routeParams', function ($scope, Post, Auth, Helper, $location, $routeParams) {
-        if (!!$routeParams.auctionStatus) {
-            $scope.posts = Post.auctionStatus($routeParams.auctionStatus);
+        Helper.jQueryDT();
+
+        $scope.posts = Post.all;
+
+        if ($routeParams.auctionStatus === 'won') {
+            $scope.filterStatus = 'complete';
+            $scope.posts = Post.all;
         }
         else {
-            $scope.posts = Post.all;
+            $scope.filterStatus = $routeParams.auctionStatus;
         }
 
         $scope.user = Auth.user;
@@ -25,8 +30,11 @@ app.controller('PostsCtrl', ['$scope', 'Post', 'Auth', 'Helper', '$location', '$
             $scope.timeLeftString = moment($scope.endTime, 'dddd DD MMM, h:mm A').fromNow();
         };
 
-        Helper.jQueryDT();
-
+        $scope.activateAuction = function (auctionId) {
+            Post.updateStatus(auctionId, 'complete').then(function () {
+                $location.path('/auction/' + auctionId);
+            });
+        };
 
         $scope.createAuction = function () {
             var post = {

@@ -88,7 +88,7 @@
                 </thead>
                 <tbody>
                     <tr ng-repeat="bid in bids| reverse">
-                        <td data-bidderId='{{ bid.bidderId}}'>{{ bid.bidderName| capitaliseFirstLetter}}</td>
+                        <td data-bidderId='{{ bid.bidderId}}'><a ng-href='#/users/{{bid.bidderId}}' title='See all {{ bid.bidderName| capitaliseFirstLetter}} wins'>{{ bid.bidderName| capitaliseFirstLetter}}</a></td>
                         <td class='text-right'>{{ bid.bidamount | number : 0}}</td>
                         <td class='text-right'>{{ bid.timestamp | formatTimeShort}}</td>
                     </tr>
