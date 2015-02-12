@@ -30,10 +30,24 @@ app.controller('PostsCtrl', ['$scope', 'Post', 'Auth', 'Helper', '$location', '$
             $scope.timeLeftString = moment($scope.endTime, 'dddd DD MMM, h:mm A').fromNow();
         };
 
-        $scope.activateAuction = function (auctionId) {
-            Post.updateStatus(auctionId, 'complete').then(function () {
+        $scope.activateAuction = function (auctionId, username, uid) {
+            Post.activateAuction(auctionId, username, uid).then(function () {
                 $location.path('/auction/' + auctionId);
             });
+        }
+        ;
+        $scope.closeAuction = function (auctionId) {
+            Post.closeAuction(auctionId).then(function () {
+                $location.path('/auctions/complete');
+            });
+        };
+        $scope.deActivateAuction = function (auctionId) {
+            Post.deActivateAuction(auctionId).then(function () {
+                $location.path('/auctions/pending');
+            });
+        };
+        $scope.deleteAuction = function (auction) {
+            Post.deleteAuction(auction);
         };
 
         $scope.createAuction = function () {

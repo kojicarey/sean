@@ -3,7 +3,7 @@
 /**
  * This control takes a postId parameter to retrieve a particular post
  */
-app.controller('PostViewCtrl', ['$scope', '$routeParams', 'Post', 'Auth', '$firebase', function ($scope, $routeParams, Post, Auth, $firebase) {
+app.controller('PostViewCtrl', ['$scope', '$routeParams', 'Post', 'Auth', '$firebase', '$location', function ($scope, $routeParams, Post, Auth, $firebase, $location) {
         $scope.auction = Post.get($routeParams.auctionId); // get the postId from the URL
         $scope.comments = Post.comments($routeParams.auctionId);
         $scope.bids = Post.bids($routeParams.auctionId);
@@ -40,6 +40,24 @@ app.controller('PostViewCtrl', ['$scope', '$routeParams', 'Post', 'Auth', '$fire
                 $scope.errorMsg = 'Minimum bid is ' + ($scope.currentPrice() + 1000);
                 console.log($scope.errorMsg);
             }
+        };
+        $scope.activateAuction = function (auctionId, username, uid) {
+            Post.activateAuction(auctionId, Auth.user.profile.username, Auth.user.profile.uid).then(function () {
+                $location.path('/auction/' + auctionId);
+            });
+        };
+        $scope.closeAuction = function (auctionId) {
+            Post.closeAuction(auctionId).then(function () {
+                $location.path('/auctions/complete');
+            });
+        };
+        $scope.deActivateAuction = function (auctionId) {
+            Post.deActivateAuction(auctionId).then(function () {
+                $location.path('/auctions/pending');
+            });
+        };
+        $scope.deleteAuction = function (auction) {
+            Post.delete(auction);
         };
         $scope.currentPrice = function () {
 

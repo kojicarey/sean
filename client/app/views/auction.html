@@ -28,6 +28,31 @@
         <div class="col-sm-9">{{auction.description}}</div>
     </div>      
     <hr/>
+    <div class="row">
+        <div class="col-sm-12">
+            <span class="btn-group" role="group">                                        
+                <button class="btn btn-success" 
+                        ng-click="closeAuction(auction.$id)"
+                        type="button">Close Bidding</button>
+            </span>
+            <span class="btn-group" role="group">                                        
+                <button class="btn btn-info" 
+                        ng-click="activateAuction(auction.$id, user.profile.username, user.profile.uid)"
+                        type="button">Nominate</button>
+            </span>
+            <span class="btn-group" role="group">                                        
+                <button class="btn btn-info" 
+                        ng-click="deActivateAuction(auction.$id)"
+                        type="button">De-nominate</button>
+            </span>
+            <span class="btn-group" role="group">
+                <button class="btn btn-danger" 
+                        ng-click="deleteAuction(auction)"
+                        type="button">Delete Auction</button>
+            </span>
+        </div>
+    </div>
+    <hr/>
 </div>
 
 <div class='row'>
@@ -35,7 +60,7 @@
         <!-- bids -->
         <div class="panel panel-primary">
             <div class="panel-heading">Bids</div>
-            <div class="panel-body">
+            <div class="panel-body" ng-show="auction.auctionStatus === 'active'">
                 <form name="helpForm" novalidate role="form" class="form-horizontal">
                     <div class="form-group">
                         <label for="bid-amount" class="col-sm-3 control-label">

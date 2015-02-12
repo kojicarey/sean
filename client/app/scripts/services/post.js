@@ -2,13 +2,14 @@
 /**
  * Using 3 way data binding
  */
-app.factory('Post', ['$firebase', 'FIREBASE_URL', function ($firebase, FIREBASE_URL) {
+app.factory('Post', ['$firebase', 'FIREBASE_URL', 'Queue', function ($firebase, FIREBASE_URL, Queue) {
         //return $resource('https://gnrl.firebaseIO.com/posts/:id.json'); // :id is an optional parameter. if supplied posts/ID.json, otherwise posts.json
 
         var ref = new Firebase(FIREBASE_URL); // reference to the firebase repository
         var refPosts = ref.child('auction');
         var refComments = ref.child('comments');
         var refUserPosts = ref.child('user_posts');
+        var refAuctionQueue = ref.child('auction_queue');
         var posts = $firebase(refPosts).$asArray(); // pass reference into $firebase, which provdes wrapper helper functions
 
         var Post = {
@@ -21,10 +22,22 @@ app.factory('Post', ['$firebase', 'FIREBASE_URL', function ($firebase, FIREBASE_
              * @param {type} post
              * @returns {undefined}
              */
-
-            updateStatus: function (auctionId, newStatus) {
-                return $firebase(refPosts.child(auctionId)).$set('auctionStatus', newStatus);
-
+            activateAuction: function (auctionId, userName, userId) {
+                $firebase(refAuctionQueue).$push(auctionId);
+                console.log(auctionId, userName, userId);
+                return $firebase(refPosts.child(auctionId)).$update({auctionStatus: 'active', creatorName: userName, creatorUID: userId});
+            },
+            deActivateAuction: function (auctionId) {
+                Queue.deQueue(auctionId);
+                return $firebase(refPosts.child(auctionId)).$update({auctionStatus: 'pending', creatorName: null, creatorUID: null});
+            },
+            closeAuction: function (auctionId) {
+                Queue.deQueue(auctionId);
+                return $firebase(refPosts.child(auctionId)).$update({auctionStatus: 'complete', endTime: Firebase.ServerValue.TIMESTAMP});
+            },
+            deleteAuction: function (auctionId) {
+                Queue.deQueue(auctionId);
+                posts.$remove(post);
             },
             create: function (post) {
                 post.auctionStatus = 'pending';

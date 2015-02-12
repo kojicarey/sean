@@ -54,6 +54,15 @@ app.config(function ($routeProvider) {
                     }
                 }
             })
+            .when('/activeAuction', {
+                templateUrl: 'views/auction.html',
+                controller: 'ActiveAuctionControl',
+                resolve: {
+                    user: function (Auth) { // Do it this way, to ensure auth is resolved before content is displayed
+                        return Auth.resolveUser();
+                    }
+                }
+            })
             .when('/auction/:auctionId', {
                 templateUrl: 'views/auction.html',
                 controller: 'PostViewCtrl',

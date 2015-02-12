@@ -1,10 +1,10 @@
 <div class='container'>
     <div class='row'>
-        <div class="col-sm-6" ng-repeat="auction in posts" ng-if="auction.auctionStatus===filterStatus">
+        <div class="col-sm-6" ng-repeat="auction in posts" ng-if="auction.auctionStatus === filterStatus">
 
             <div data-ngCloak data-auctionId='{{auction.$id}}' class="panel panel-default {{auction.expiry}} {{auction.auctionStatus}}">
                 <div class="panel-heading">
-                    <a ng-href="#/auction/{{auction.$id}}">{{auction.title| capitaliseFirstLetter }}</a>
+                    <!--<a ng-href="#/auction/{{auction.$id}}">-->{{auction.title| capitaliseFirstLetter }}<!--</a>-->
                 </div>
                 <div class="panel-body">{{auction.description}}</div>
                 <table class="table">
@@ -23,13 +23,24 @@
                             {{auction.timeleft| dateFromNow }}
                         </td>
                     </tr>
-                    <tr ng-if="auction.auctionStatus==='complete'">
+                    <tr ng-if="auction.auctionStatus === 'complete'">
                         <th>Seller</th>
                         <td>{{auction.creatorName| capitaliseFirstLetter }}</td>
                     </tr>
-                    <tr ng-if="auction.auctionStatus!=='complete'">
-                        <th>Seller</th>
-                        <td><button class='btn btn-default' ng-click='activateAuction(auction.$id)'>Nominate</button></td>
+                    <tr>
+                        <th>Action</th>
+                        <td>
+                            <span class="btn-group" role="group">                                        
+                                <button class="btn btn-info" 
+                                        ng-click="activateAuction(auction.$id, user.profile.username, user.profile.uid)"
+                                        type="button">Re-Nominate</button>
+                            </span>
+                            <span class="btn-group" role="group">
+                                <button class="btn btn-danger" 
+                                        ng-click="deleteAuction(auction)"
+                                        type="button">Delete Auction</button>
+                            </span>
+                        </td>
                     </tr>
                 </table>
             </div>
