@@ -45,6 +45,15 @@ app.config([
           return Auth.resolveUser();
         }
       }
+    }).when('/activeAuction', {
+      templateUrl: 'views/auction.html',
+      controller: 'ActiveAuctionControl',
+      resolve: {
+        user: function (Auth) {
+          // Do it this way, to ensure auth is resolved before content is displayed
+          return Auth.resolveUser();
+        }
+      }
     }).when('/auction/:auctionId', {
       templateUrl: 'views/auction.html',
       controller: 'PostViewCtrl',
@@ -102,15 +111,38 @@ app.controller('PostsCtrl', [
     $scope.deletePost = function (post) {
       Post.delete(post);
     };
+    $scope.currentPrice = function (auction) {
+      if (!auction.winningBidder) {
+        console.log('No winning bidder. So use start amount: ' + auction.startPrice);
+        return auction.startPrice;
+      } else {
+        console.log('Found winning bidder:' + auction.winningBidderAmount);
+        return auction.winningBidderAmount;
+      }
+    };
     $scope.timeLeft = function () {
       console.log('Calculating end time');
       console.log(moment($scope.endTime, 'dddd DD MMM, h:mm A').fromNow());
       $scope.timeLeftString = moment($scope.endTime, 'dddd DD MMM, h:mm A').fromNow();
     };
-    $scope.activateAuction = function (auctionId) {
-      Post.updateStatus(auctionId, 'complete').then(function () {
+    $scope.activateAuction = function (auctionId, username, uid) {
+      Post.activateAuction(auctionId, username, uid).then(function () {
         $location.path('/auction/' + auctionId);
       });
+    };
+    ;
+    $scope.closeAuction = function (auctionId) {
+      Post.closeAuction(auctionId).then(function () {
+        $location.path('/auctions/complete');
+      });
+    };
+    $scope.deActivateAuction = function (auctionId) {
+      Post.deActivateAuction(auctionId).then(function () {
+        $location.path('/auctions/pending');
+      });
+    };
+    $scope.deleteAuction = function (auction) {
+      Post.deleteAuction(auction);
     };
     $scope.createAuction = function () {
       var post = {
@@ -121,6 +153,17 @@ app.controller('PostsCtrl', [
           createTime: Firebase.ServerValue.TIMESTAMP,
           startPrice: $scope.startPrice,
           status: 'pending',
+          club: $scope.club,
+          position: {
+            fullback: !!$scope.position.fullback,
+            wing: !!$scope.position.wing,
+            centre: !!$scope.position.centre,
+            halfback: !!$scope.position.halfback,
+            hooker: !!$scope.position.hooker,
+            backrow: !!$scope.position.backrow,
+            prop: !!$scope.position.prop,
+            goalkick: !!$scope.position.goalkick
+          },
           endTime: moment($scope.endTime, 'dddd DD MMM, h:mm A').unix() * 100
         };
       Post.create(post).then(function (ref) {
@@ -140,7 +183,8 @@ app.controller('PostViewCtrl', [
   'Post',
   'Auth',
   '$firebase',
-  function ($scope, $routeParams, Post, Auth, $firebase) {
+  '$location',
+  function ($scope, $routeParams, Post, Auth, $firebase, $location) {
     $scope.auction = Post.get($routeParams.auctionId);
     // get the postId from the URL
     $scope.comments = Post.comments($routeParams.auctionId);
@@ -175,6 +219,24 @@ app.controller('PostViewCtrl', [
         $scope.errorMsg = 'Minimum bid is ' + ($scope.currentPrice() + 1000);
         console.log($scope.errorMsg);
       }
+    };
+    $scope.activateAuction = function (auctionId, username, uid) {
+      Post.activateAuction(auctionId, Auth.user.profile.username, Auth.user.profile.uid).then(function () {
+        $location.path('/auction/' + auctionId);
+      });
+    };
+    $scope.closeAuction = function (auctionId) {
+      Post.closeAuction(auctionId).then(function () {
+        $location.path('/auctions/complete');
+      });
+    };
+    $scope.deActivateAuction = function (auctionId) {
+      Post.deActivateAuction(auctionId).then(function () {
+        $location.path('/auctions/pending');
+      });
+    };
+    $scope.deleteAuction = function (auction) {
+      Post.delete(auction);
     };
     $scope.currentPrice = function () {
       if (!$scope.auction.winningBidder) {
@@ -332,6 +394,130 @@ app.controller('ProfileCtrl', [
   }
 ]);
 'use strict';
+/**
+ * This control takes a postId parameter to retrieve a particular post
+ */
+app.controller('ActiveAuctionControl', [
+  '$scope',
+  '$routeParams',
+  'Post',
+  'Auth',
+  '$firebase',
+  'Queue',
+  '$location',
+  function ($scope, $routeParams, Post, Auth, $firebase, Queue, $location) {
+    //$scope.auction;
+    Queue.getQueue().then(function (nextAuctionId) {
+      $scope.auction = Post.get(nextAuctionId);
+      // get the postId from the URL
+      $scope.comments = Post.comments(nextAuctionId);
+      $scope.bids = Post.bids(nextAuctionId);
+      $scope.placeBid = function (increment) {
+        $scope.errorMsg = '';
+        if (!!increment) {
+          // quick bid button pushed
+          $scope.bidamount = $scope.currentPrice() + increment;
+        }
+        if ($scope.bidamount >= $scope.currentPrice() + 1000) {
+          var bid = {
+              bidderName: $scope.user.profile.username,
+              bidderId: $scope.user.profile.uid,
+              timestamp: Firebase.ServerValue.TIMESTAMP,
+              bidamount: $scope.bidamount
+            };
+          $scope.bids.$add(bid).then(function (bidRef) {
+            var winningBid = {
+                winningBidder: bid.bidderName,
+                winningBidderUID: bid.bidderId,
+                winningBidderAmount: bid.bidamount,
+                winningBidderBidId: bidRef.name()
+              };
+            //debugger;
+            $firebase(new Firebase('https://itsybid.firebaseio.com/auction/' + nextAuctionId)).$update(winningBid);
+          });
+          $scope.bidamount = '';
+        } else {
+          $scope.errorMsg = 'Minimum bid is ' + ($scope.currentPrice() + 1000);
+          console.log($scope.errorMsg);
+        }
+      };
+      $scope.activateAuction = function (auctionId, username, uid) {
+        Post.activateAuction(auctionId, username, uid).then(function () {
+          $location.path('/auction/' + auctionId);
+        });
+      };
+      ;
+      $scope.closeAuction = function (auctionId) {
+        Post.closeAuction(auctionId).then(function () {
+          $location.path('/auctions/complete');
+        });
+      };
+      $scope.deActivateAuction = function (auctionId) {
+        Post.deActivateAuction(auctionId).then(function () {
+          $location.path('/auctions/pending');
+        });
+      };
+      $scope.deleteAuction = function (auction) {
+        Post.deleteAuction(auction);
+      };
+      $scope.user = Auth.user;
+      $scope.signedIn = Auth.signedIn;
+      $scope.currentPrice = function () {
+        if (!$scope.auction.winningBidder) {
+          console.log('No winning bidder. So use start amount: ' + $scope.auction.startPrice);
+          return $scope.auction.startPrice;
+        } else {
+          console.log('Found winning bidder:' + $scope.auction.winningBidderAmount);
+          return $scope.auction.winningBidderAmount;
+        }
+      };
+      $scope.addComment = function () {
+        if (!$scope.commentText || $scope.commentText === '') {
+          return;  // dont display empty commments
+        }
+        var comment = {
+            text: $scope.commentText,
+            creator: $scope.user.profile.username,
+            creatorUID: $scope.user.profile.uid,
+            timestamp: Firebase.ServerValue.TIMESTAMP
+          };
+        $scope.comments.$add(comment);
+        $scope.commentText = '';
+      };
+      $scope.deleteComment = function (comment) {
+        $scope.comments.$remove(comment);
+      };
+    });
+  }
+]);
+//app.controller('PostViewCtrl', function ($scope, $routeParams, Post, Auth) {
+//    $scope.post = Post.get($routeParams.postId);
+//    $scope.comments = Post.comments($routeParams.postId);
+//
+//    $scope.user = Auth.user;
+//    $scope.signedIn = Auth.signedIn;
+//
+//    $scope.addComment = function () {
+//        if (!$scope.commentText || $scope.commentText === '') {
+//            return;
+//        }
+//
+//        var comment = {
+//            text: $scope.commentText,
+//            creator: $scope.user.profile.username,
+//            creatorUID: $scope.user.uid
+//        };
+//        $scope.comments.$add(comment);
+//
+//        $scope.commentText = '';
+//    }
+//
+//    $scope.deleteComment = function (comment) {
+//        $scope.comments.$remove(comment);
+//    }
+//
+//});
+'use strict';
 app.filter('hostnameFromUrl', function () {
   return function (str) {
     var url = document.createElement('a');
@@ -415,19 +601,46 @@ app.filter('reverse', function () {
 app.factory('Post', [
   '$firebase',
   'FIREBASE_URL',
-  function ($firebase, FIREBASE_URL) {
+  'Queue',
+  function ($firebase, FIREBASE_URL, Queue) {
     //return $resource('https://gnrl.firebaseIO.com/posts/:id.json'); // :id is an optional parameter. if supplied posts/ID.json, otherwise posts.json
     var ref = new Firebase(FIREBASE_URL);
     // reference to the firebase repository
     var refPosts = ref.child('auction');
     var refComments = ref.child('comments');
     var refUserPosts = ref.child('user_posts');
+    var refAuctionQueue = ref.child('auction_queue');
     var posts = $firebase(refPosts).$asArray();
     // pass reference into $firebase, which provdes wrapper helper functions
     var Post = {
         all: posts,
-        updateStatus: function (auctionId, newStatus) {
-          return $firebase(refPosts.child(auctionId)).$set('auctionStatus', newStatus);
+        activateAuction: function (auctionId, userName, userId) {
+          $firebase(refAuctionQueue).$push(auctionId);
+          console.log(auctionId, userName, userId);
+          return $firebase(refPosts.child(auctionId)).$update({
+            auctionStatus: 'active',
+            creatorName: userName,
+            creatorUID: userId
+          });
+        },
+        deActivateAuction: function (auctionId) {
+          Queue.deQueue(auctionId);
+          return $firebase(refPosts.child(auctionId)).$update({
+            auctionStatus: 'pending',
+            creatorName: null,
+            creatorUID: null
+          });
+        },
+        closeAuction: function (auctionId) {
+          Queue.deQueue(auctionId);
+          return $firebase(refPosts.child(auctionId)).$update({
+            auctionStatus: 'complete',
+            endTime: Firebase.ServerValue.TIMESTAMP
+          });
+        },
+        deleteAuction: function (auctionId) {
+          Queue.deQueue(auctionId);
+          posts.$remove(post);
         },
         create: function (post) {
           post.auctionStatus = 'pending';
@@ -648,29 +861,100 @@ app.factory('Helper', [
       };
     return Helper;
   }
-]);  //app.factory('Post', function ($firebase, FIREBASE_URL) {
-     //    var ref = new Firebase(FIREBASE_URL);
-     //    var posts = $firebase(ref.child('posts')).$asArray();
+]);
+//app.factory('Post', function ($firebase, FIREBASE_URL) {
+//    var ref = new Firebase(FIREBASE_URL);
+//    var posts = $firebase(ref.child('posts')).$asArray();
+//
+//    var Post = {
+//        all: posts,
+//        create: function (post) {
+//            return posts.$add(post).then(function (postRef) {
+//                $firebase(ref.child('user_posts').child(post.creatorUID)).$push(postRef.name());
+//
+//                return postRef;
+//            });
+//        },
+//        get: function (auctionId) {
+//            return $firebase(ref.child('posts').child(auctionId)).$asObject();
+//        },
+//        delete: function (post) {
+//            return posts.$remove(post);
+//        },
+//        comments: function (auctionId) {
+//            return $firebase(ref.child('comments').child(auctionId)).$asArray();
+//        }
+//    };
+//
+//    return Post;
+//});
+'use strict';
+app.factory('Queue', [
+  '$window',
+  'FIREBASE_URL',
+  '$firebase',
+  '$q',
+  function ($window, FIREBASE_URL, $firebase, $q) {
+    var ref = new $window.Firebase(FIREBASE_URL);
+    var queueRef = ref.child('auction_queue');
+    var queue = {
+        deQueue: function (auctionId) {
+          var defer = $q.defer();
+          $firebase(queueRef).$asArray().$loaded().then(function (data) {
+            // then 
+            var posts = {};
+            for (var i = 0; i < data.length; i++) {
+              // loop over each post 
+              var value = data[i].$value;
+              if (value === auctionId) {
+                console.log('Deleting ' + value + 'from queue, id: ' + data[i].$id);
+                $firebase(queueRef.child(data[i].$id)).$remove();
+              }
+            }
+            defer.resolve(posts);
+          });
+          return defer.promise;
+        },
+        getQueue: function () {
+          var defer = $q.defer();
+          console.log('trying to get queue');
+          $firebase(queueRef).$asArray().$loaded().then(function (data) {
+            // then 
+            console.log('promised content');
+            defer.resolve(data[0].$value);
+          });
+          console.log('sending promise');
+          return defer.promise;
+        }
+      };
+    return queue;
+  }
+]);  //app.factory('Profile', function ($window, FIREBASE_URL, $firebase, Post, $q) {
+     //  var ref = new $window.Firebase(FIREBASE_URL);
      //
-     //    var Post = {
-     //        all: posts,
-     //        create: function (post) {
-     //            return posts.$add(post).then(function (postRef) {
-     //                $firebase(ref.child('user_posts').child(post.creatorUID)).$push(postRef.name());
+     //  var profile = {
+     //    get: function (userId) {
+     //      return $firebase(ref.child('profile').child(userId)).$asObject();
+     //    },
+     //    getPosts: function(userId) {
+     //      var defer = $q.defer();
      //
-     //                return postRef;
-     //            });
-     //        },
-     //        get: function (auctionId) {
-     //            return $firebase(ref.child('posts').child(auctionId)).$asObject();
-     //        },
-     //        delete: function (post) {
-     //            return posts.$remove(post);
-     //        },
-     //        comments: function (auctionId) {
-     //            return $firebase(ref.child('comments').child(auctionId)).$asArray();
-     //        }
-     //    };
+     //      $firebase(ref.child('user_posts').child(userId))
+     //        .$asArray()
+     //        .$loaded()
+     //        .then(function(data) {
+     //          var posts = {};
      //
-     //    return Post;
+     //          for(var i = 0; i<data.length; i++) {
+     //            var value = data[i].$value;
+     //            posts[value] = Post.get(value);
+     //          }
+     //          defer.resolve(posts);
+     //        });
+     //
+     //      return defer.promise;
+     //    }
+     //  };
+     //
+     //  return profile;
      //});

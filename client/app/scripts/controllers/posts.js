@@ -24,6 +24,17 @@ app.controller('PostsCtrl', ['$scope', 'Post', 'Auth', 'Helper', '$location', '$
             Post.delete(post);
         };
 
+        $scope.currentPrice = function (auction) {
+            if (!auction.winningBidder) {
+                console.log('No winning bidder. So use start amount: ' + auction.startPrice);
+                return auction.startPrice;
+            }
+            else {
+                console.log('Found winning bidder:' + auction.winningBidderAmount);
+                return auction.winningBidderAmount;
+            }
+        };
+
         $scope.timeLeft = function () {
             console.log("Calculating end time");
             console.log(moment($scope.endTime, 'dddd DD MMM, h:mm A').fromNow());
@@ -59,6 +70,17 @@ app.controller('PostsCtrl', ['$scope', 'Post', 'Auth', 'Helper', '$location', '$
                 createTime: Firebase.ServerValue.TIMESTAMP,
                 startPrice: $scope.startPrice,
                 status: 'pending',
+                club: $scope.club,
+                position: {
+                    fullback: !!$scope.position.fullback,
+                    wing: !!$scope.position.wing,
+                    centre: !!$scope.position.centre,
+                    halfback: !!$scope.position.halfback,
+                    hooker: !!$scope.position.hooker,
+                    backrow: !!$scope.position.backrow,
+                    prop: !!$scope.position.prop,
+                    goalkick: !!$scope.position.goalkick
+                },
                 endTime: moment($scope.endTime, 'dddd DD MMM, h:mm A').unix() * 100 //Firebase uses milliseconds offset, but we want to round to seconds
             };
             Post.create(post).then(function (ref) {

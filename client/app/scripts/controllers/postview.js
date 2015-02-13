@@ -60,7 +60,6 @@ app.controller('PostViewCtrl', ['$scope', '$routeParams', 'Post', 'Auth', '$fire
             Post.delete(auction);
         };
         $scope.currentPrice = function () {
-
             if (!$scope.auction.winningBidder) {
                 console.log('No winning bidder. So use start amount: ' + $scope.auction.startPrice);
                 return $scope.auction.startPrice;

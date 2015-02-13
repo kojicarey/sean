@@ -23,10 +23,27 @@
         <div class="col-sm-3">Seller</div>
         <div class="col-sm-9">{{auction.creatorName| capitaliseFirstLetter}}</div>
     </div>
-    <div class='row'>
+    <!--<div class='row'>
         <div class="col-sm-3">Description</div>
         <div class="col-sm-9">{{auction.description}}</div>
-    </div>      
+    </div>    -->
+    <div class='row'>
+        <div class="col-sm-3">Club</div>
+        <div class="col-sm-9">{{auction.club}}</div>
+    </div>    
+    <div class="row">
+        <div class="col-sm-3">Positions</div>
+        <div class="col-sm-9">
+            <span class="label label-success" ng-show="auction.position.fullback">Fullback</span>
+            <span class="label label-success" ng-show="auction.position.wing">Winger</span>
+            <span class="label label-success" ng-show="auction.position.centre">Centre</span>
+            <span class="label label-success" ng-show="auction.position.halfback">Halfback</span>
+            <span class="label label-warning" ng-show="auction.position.hooker">Hooker</span>
+            <span class="label label-warning" ng-show="auction.position.backrow">Backrower</span>
+            <span class="label label-warning" ng-show="auction.position.prop">Prop</span>
+            <span class="label label-info" ng-show="auction.position.goalkick">Goal Kick</span>
+        </div>
+    </div>
     <hr/>
     <div class="row">
         <div class="col-sm-12">
@@ -45,11 +62,11 @@
                         ng-click="deActivateAuction(auction.$id)"
                         type="button">De-nominate</button>
             </span>
-            <span class="btn-group" role="group">
+            <!-- <span class="btn-group" role="group">
                 <button class="btn btn-danger" 
                         ng-click="deleteAuction(auction)"
                         type="button">Delete Auction</button>
-            </span>
+            </span>-->
         </div>
     </div>
     <hr/>
