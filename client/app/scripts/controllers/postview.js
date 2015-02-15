@@ -47,6 +47,7 @@ app.controller('PostViewCtrl', ['$scope', '$routeParams', 'Post', 'Auth', '$fire
             });
         };
         $scope.closeAuction = function (auctionId) {
+            debugger;
             Post.closeAuction(auctionId).then(function () {
                 $location.path('/auctions/complete');
             });

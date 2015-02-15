@@ -1,6 +1,75 @@
 <div class='container'>
     <div class='row'>
-        <div class="col-sm-6" ng-repeat="auction in posts" ng-if="auction.auctionStatus === filterStatus">
+        <div class='col-sm-12'>
+            <form class="form-inline">
+                <input type='text' ng-model="search.title" />
+                <select ng-model='search.club' class="form-control">
+                    <option value=''>All Teams</option>
+                    <option value='broncos'>Broncos</option>
+                    <option value='raiders'>Raiders</option>
+                    <option value='titans'>Titans</option>
+                    <option value='roosters'>Roosters</option>
+                    <option value='rabbitohs'>Rabbitohs</option>
+                    <option value='eels'>Eels</option>
+                    <option value='sharks'>Sharks</option>
+                    <option value='cowboys'>Cowboys</option>
+                    <option value='panthers'>Panthers</option>
+                    <option value='bulldogs'>Bulldogs</option>
+                    <option value='tigers'>Tigers</option>
+                </select>
+                <div class="checkbox">
+                    <label> 
+                        <input type='checkbox' ng-model='search.position.fullback' />
+                        Fullback
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type='checkbox' ng-model='search.position.wing' />
+                        Winger
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type='checkbox' ng-model='search.position.centre' />
+                        Centre
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type='checkbox' ng-model='search.position.halfback' />
+                        Halfback
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type='checkbox' ng-model='search.position.hooker' />
+                        Hooker
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type='checkbox' ng-model='search.position.backrow' />
+                        Backrow
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type='checkbox' ng-model='search.position.prop' />
+                        Prop
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type='checkbox' ng-model='search.position.goalkick' />
+                        Goal Kick
+                    </label>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class='row'>
+        <div class="col-sm-6 col-md-4 col-lg-3" ng-repeat="auction in posts| filter:search " ng-if="auction.auctionStatus === filterStatus">
 
             <div data-ngCloak data-auctionId='{{auction.$id}}' class="panel panel-default {{auction.expiry}} {{auction.auctionStatus}}">
                 <div class="panel-heading">
@@ -10,9 +79,9 @@
                 <table class="table">
                     <tr>
                         <th>Price</th>
-                        <td>{{currentPrice(auction)| commaThousands}}</td>
+                        <td>{{currentPrice(auction) | commaThousands}}</td>
                     </tr>
-                    <tr>
+                    <!-- <tr>
                         <th>High Bidder</th>
                         <td>{{auction.winningBidder| capitaliseFirstLetter}}</td>
                     </tr>
@@ -22,7 +91,7 @@
                             {{auction.endtime| formatTime }}<br/>
                             {{auction.timeleft| dateFromNow }}
                         </td>
-                    </tr>
+                    </tr>-->
                     <tr>
                         <th>Club</th>
                         <td>{{auction.club| capitaliseFirstLetter}}</td>

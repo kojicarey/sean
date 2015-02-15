@@ -3,7 +3,7 @@
 app.factory('Profile', ['$window', 'FIREBASE_URL', '$firebase', 'Post', '$q', function ($window, FIREBASE_URL, $firebase, Post, $q) {
         var ref = new $window.Firebase(FIREBASE_URL);
         var profileRef = ref.child('profile');
-        var userPostsRef = ref.child('user_posts');
+        var winListRef = ref.child('win_list');
 
         var profile = {
             /**
@@ -18,7 +18,7 @@ app.factory('Profile', ['$window', 'FIREBASE_URL', '$firebase', 'Post', '$q', fu
             getPosts: function (userId) {
                 var defer = $q.defer();
 
-                $firebase(userPostsRef.child(userId)) // get all user posts
+                $firebase(winListRef.child(userId)) // get all user posts
                         .$asArray() // as an array
                         .$loaded() // wait until loaded
                         .then(function (data) { // then 

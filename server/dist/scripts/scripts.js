@@ -127,12 +127,12 @@ app.controller('PostsCtrl', [
     };
     $scope.activateAuction = function (auctionId, username, uid) {
       Post.activateAuction(auctionId, username, uid).then(function () {
-        $location.path('/auction/' + auctionId);
+        $location.path('/activeAuction');
       });
     };
     ;
-    $scope.closeAuction = function (auctionId) {
-      Post.closeAuction(auctionId).then(function () {
+    $scope.closeAuction = function (auction) {
+      Post.closeAuction(auction).then(function () {
         $location.path('/auctions/complete');
       });
     };
@@ -226,6 +226,7 @@ app.controller('PostViewCtrl', [
       });
     };
     $scope.closeAuction = function (auctionId) {
+      debugger;
       Post.closeAuction(auctionId).then(function () {
         $location.path('/auctions/complete');
       });
@@ -609,6 +610,7 @@ app.factory('Post', [
     var refPosts = ref.child('auction');
     var refComments = ref.child('comments');
     var refUserPosts = ref.child('user_posts');
+    var refWinList = ref.child('win_list');
     var refAuctionQueue = ref.child('auction_queue');
     var posts = $firebase(refPosts).$asArray();
     // pass reference into $firebase, which provdes wrapper helper functions
@@ -631,11 +633,14 @@ app.factory('Post', [
             creatorUID: null
           });
         },
-        closeAuction: function (auctionId) {
-          Queue.deQueue(auctionId);
-          return $firebase(refPosts.child(auctionId)).$update({
-            auctionStatus: 'complete',
-            endTime: Firebase.ServerValue.TIMESTAMP
+        closeAuction: function (auction) {
+          debugger;
+          auction.auctionStatus = 'complete';
+          auction.endTime = Firebase.ServerValue.TIMESTAMP;
+          return auction.$save().then(function (auctionRef) {
+            Queue.deQueue(auction.$id);
+            $firebase(refWinList.child(auction.winningBidderUID)).$push(auction.$id);
+            return auctionRef;
           });
         },
         deleteAuction: function (auctionId) {
@@ -789,14 +794,14 @@ app.factory('Profile', [
   function ($window, FIREBASE_URL, $firebase, Post, $q) {
     var ref = new $window.Firebase(FIREBASE_URL);
     var profileRef = ref.child('profile');
-    var userPostsRef = ref.child('user_posts');
+    var winListRef = ref.child('win_list');
     var profile = {
         get: function (userId) {
           return $firebase(profileRef.child(userId)).$asObject();
         },
         getPosts: function (userId) {
           var defer = $q.defer();
-          $firebase(userPostsRef.child(userId)).$asArray().$loaded().then(function (data) {
+          $firebase(winListRef.child(userId)).$asArray().$loaded().then(function (data) {
             // then 
             var posts = {};
             for (var i = 0; i < data.length; i++) {

@@ -9,6 +9,7 @@ app.factory('Post', ['$firebase', 'FIREBASE_URL', 'Queue', function ($firebase, 
         var refPosts = ref.child('auction');
         var refComments = ref.child('comments');
         var refUserPosts = ref.child('user_posts');
+        var refWinList = ref.child('win_list');
         var refAuctionQueue = ref.child('auction_queue');
         var posts = $firebase(refPosts).$asArray(); // pass reference into $firebase, which provdes wrapper helper functions
 
@@ -31,9 +32,18 @@ app.factory('Post', ['$firebase', 'FIREBASE_URL', 'Queue', function ($firebase, 
                 Queue.deQueue(auctionId);
                 return $firebase(refPosts.child(auctionId)).$update({auctionStatus: 'pending', creatorName: null, creatorUID: null});
             },
-            closeAuction: function (auctionId) {
-                Queue.deQueue(auctionId);
-                return $firebase(refPosts.child(auctionId)).$update({auctionStatus: 'complete', endTime: Firebase.ServerValue.TIMESTAMP});
+            closeAuction: function (auction) {
+                debugger;
+                auction.auctionStatus = 'complete';
+                auction.endTime = Firebase.ServerValue.TIMESTAMP;
+                return auction
+                        .$save()
+                        .then(function (auctionRef) {
+                            Queue.deQueue(auction.$id);
+                            $firebase(refWinList.child(auction.winningBidderUID))
+                                    .$push(auction.$id);
+                            return auctionRef;
+                        });
             },
             deleteAuction: function (auctionId) {
                 Queue.deQueue(auctionId);

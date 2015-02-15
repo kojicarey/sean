@@ -43,12 +43,12 @@ app.controller('PostsCtrl', ['$scope', 'Post', 'Auth', 'Helper', '$location', '$
 
         $scope.activateAuction = function (auctionId, username, uid) {
             Post.activateAuction(auctionId, username, uid).then(function () {
-                $location.path('/auction/' + auctionId);
+                $location.path('/activeAuction');
             });
         }
         ;
-        $scope.closeAuction = function (auctionId) {
-            Post.closeAuction(auctionId).then(function () {
+        $scope.closeAuction = function (auction) {
+            Post.closeAuction(auction).then(function () {
                 $location.path('/auctions/complete');
             });
         };
