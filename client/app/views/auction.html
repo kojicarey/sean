@@ -20,7 +20,7 @@
         <div class="col-sm-9">{{auction.endTime| timeLeft}}</div>
     </div>-->      
     <div class='row'>
-        <div class="col-sm-3">Seller</div>
+        <div class="col-sm-3">Nominator</div>
         <div class="col-sm-9">{{auction.creatorName| capitaliseFirstLetter}}</div>
     </div>
     <!--<div class='row'>
@@ -76,7 +76,7 @@
     <div class="col-sm-6">
         <!-- bids -->
         <div class="panel panel-primary">
-            <div class="panel-heading">Bids</div>
+            <div class="panel-heading"><i class="fa fa-legal"></i> Bids</div>
             <div class="panel-body" ng-show="auction.auctionStatus === 'active'">
                 <form name="helpForm" novalidate role="form" class="form-horizontal">
                     <div class="form-group">
@@ -142,7 +142,7 @@
     <div class="col-sm-6">
         <!-- comments -->
         <div class="panel panel-primary">
-            <div class="panel-heading">Comments</div>
+            <div class="panel-heading"><i class="fa fa-comment"></i> Comments</div>
             <ul class="list-group">
                 <li class="list-group-item" ng-repeat="comment in comments">
                     <p>{{ comment.text}}</p>

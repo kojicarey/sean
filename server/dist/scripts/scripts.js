@@ -301,14 +301,14 @@ app.controller('NavCtrl', [
   function ($scope, $location, Auth) {
     $scope.signedIn = Auth.signedIn;
     $scope.logout = Auth.logout;
-    $scope.user = Auth.user;
+    $scope.auth = Auth;
     $scope.post = {
       url: 'http://',
       title: ''
     };
     $scope.submitPost = function () {
-      $scope.post.creator = $scope.user.profile.username;
-      $scope.post.creatorUID = $scope.user.uid;
+      $scope.post.creator = $scope.auth.user.profile.username;
+      $scope.post.creatorUID = $scope.auth.user.uid;
       Post.create($scope.post).then(function (ref) {
         $scope.post = {
           url: 'http://',
@@ -317,7 +317,6 @@ app.controller('NavCtrl', [
         $location.path('/posts/' + ref.name());
       });
     };
-    $scope.user = Auth.user;
     $scope.signedIn = Auth.signedIn;
     $scope.logout = Auth.logout;
   }
@@ -346,15 +345,15 @@ app.controller('AuthCtrl', [
          * Call this method to register a user
          */
     $scope.register = function () {
-      Auth.register($scope.user).then(function (user) {
-        return Auth.login($scope.user).then(function () {
+      Auth.register($scope.user, function (error, user) {
+        if (error)
+          return $scope.error = error.toString();
+        Auth.login($scope.user, function () {
           user.username = $scope.user.username;
-          return Auth.createProfile(user);
-        }).then(function () {
-          $location.path('/');
+          Auth.createProfile(user, function () {
+            $location.path('/');
+          });
         });
-      }, function (error) {
-        $scope.error = error.toString();
       });
     };
   }
@@ -677,59 +676,90 @@ app.factory('Post', [
 'use strict';
 app.factory('Auth', [
   '$firebase',
-  '$firebaseSimpleLogin',
+  '$firebaseAuth',
   'FIREBASE_URL',
   '$rootScope',
-  function ($firebase, $firebaseSimpleLogin, FIREBASE_URL, $rootScope) {
-    var ref = new Firebase(FIREBASE_URL);
-    var auth = $firebaseSimpleLogin(ref);
+  '$q',
+  function ($firebase, $firebaseAuth, FIREBASE_URL, $rootScope, $q) {
+    var oldref = new Firebase(FIREBASE_URL);
+    var ref = $firebaseAuth(oldref);
+    var defer = $q.defer();
     var Auth = {
-        register: function (user) {
+        register: function (user, callback) {
           console.log('trying to register user');
-          return auth.$createUser(user.email, user.password);
+          return ref.$createUser({
+            email: user.email,
+            password: user.password
+          }, callback);
         },
-        createProfile: function (user) {
+        createProfile: function (user, callback) {
           var profile = {
               username: user.username,
               uid: user.uid,
               md5_hash: user.md5_hash
             };
           var profileRef = $firebase(ref.child('profile'));
-          return profileRef.$set(user.uid, profile);
+          profileRef.$set(user.uid, profile).then(function () {
+            callback(null);
+          }, function (error) {
+            callback(error);
+          });
         },
         login: function (user) {
           console.log('trying to log in');
-          return auth.$login('password', user);
+          return ref.$authWithPassword(user);
         },
         logout: function () {
           console.log('trying to log out');
-          auth.$logout();
+          ref.$logout();
         },
         resolveUser: function () {
           console.log('getting current user');
-          return auth.$getCurrentUser();
+          //return ref.$getCurrentUser();
+          return defer.promise;
         },
         signedIn: function () {
-          return !!Auth.user.provider;
+          return Auth.user && Auth.user.provider;
         },
         user: {}
       };
-    $rootScope.$on('$firebaseSimpleLogin:login', function (e, user) {
-      angular.copy(user, Auth.user);
-      // using copy function makes more robust Auth.user references
-      Auth.user.profile = $firebase(ref.child('profile').child(Auth.user.uid)).$asObject();
-      Auth.user.profile.uid = user.uid;
-      console.group('User logged in ' + user.email);
-      console.log(Auth.user.profile);
-      console.groupEnd();
-    });
-    $rootScope.$on('$firebaseSimpleLogin:logout', function () {
-      console.log('logged out');
-      if (Auth.user && Auth.user.profile) {
-        Auth.user.profile.$destroy();  // Ensure that profile data is destroyed when user logs out
+    ref.$onAuth(function (authData) {
+      // called whenever the login status is changed.
+      if (authData) {
+        Auth.user = authData;
+        Auth.user.profile = $firebase(oldref.child('profile').child(Auth.user.uid)).$asObject();
+        Auth.user.profile.uid = Auth.user.uid;
+        console.group('User logged in ' + Auth.user.email);
+        console.log(Auth.user.profile);
+        console.groupEnd();
+      } else {
+        console.log('logged out');
+        if (Auth.user && Auth.user.profile) {
+          Auth.user.profile.$destroy();  // Ensure that profile data is destroyed when user logs out
+        }
       }
-      angular.copy({}, Auth.user);  // Clear Auth.user field
+      Auth.user = authData;
+      defer.resolve(Auth.user);
     });
+    /*
+        $rootScope.$on('$firebaseSimpleLogin:login', function (e, user) {
+            angular.copy(user, Auth.user); // using copy function makes more robust Auth.user references
+
+            Auth.user.profile = $firebase(ref.child('profile').child(Auth.user.uid)).$asObject();
+            Auth.user.profile.uid = user.uid;
+
+            console.group('User logged in ' + user.email);
+            console.log(Auth.user.profile);
+            console.groupEnd();
+        });
+        $rootScope.$on('$firebaseSimpleLogin:logout', function () {
+            console.log('logged out');
+
+            if (Auth.user && Auth.user.profile) {
+                Auth.user.profile.$destroy(); // Ensure that profile data is destroyed when user logs out
+            }
+            angular.copy({}, Auth.user); // Clear Auth.user field
+        });*/
     return Auth;
   }
 ]);

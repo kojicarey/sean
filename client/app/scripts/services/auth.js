@@ -1,19 +1,24 @@
 'use strict';
 
-app.factory('Auth', ['$firebase', '$firebaseSimpleLogin', 'FIREBASE_URL', '$rootScope', function ($firebase, $firebaseSimpleLogin, FIREBASE_URL, $rootScope) {
-        var ref = new Firebase(FIREBASE_URL);
-        var auth = $firebaseSimpleLogin(ref);
-
+app.factory('Auth', ['$firebase', '$firebaseAuth', 'FIREBASE_URL', '$rootScope', '$q', function ($firebase, $firebaseAuth, FIREBASE_URL, $rootScope, $q) {
+        var oldref = new Firebase (FIREBASE_URL);
+        var ref = $firebaseAuth(oldref);
+var defer = $q.defer();
+                
         var Auth = {
             /**
              * @param user object. Should contain email and password fields
              * @returns $firebaseSimpleLogin.$login()
              */
-            register: function (user) {
+            register: function (user, callback) {
                 console.log('trying to register user');
-                return auth.$createUser(user.email, user.password);
+                return ref.$createUser(
+                        {
+                            email: user.email,
+                            password: user.password
+                        }, callback);
             },
-            createProfile: function (user) {
+            createProfile: function (user, callback) {
                 var profile = {
                     username: user.username,
                     uid: user.uid,
@@ -21,7 +26,14 @@ app.factory('Auth', ['$firebase', '$firebaseSimpleLogin', 'FIREBASE_URL', '$root
                 };
 
                 var profileRef = $firebase(ref.child('profile'));
-                return profileRef.$set(user.uid, profile);
+                profileRef.$set(user.uid, profile).then(function ()
+                {
+                    callback (null);
+                },
+                function (error)
+                {
+                    callback (error);
+                });
             },
             /**
              * @param user User Object
@@ -29,7 +41,7 @@ app.factory('Auth', ['$firebase', '$firebaseSimpleLogin', 'FIREBASE_URL', '$root
              */
             login: function (user) {
                 console.log('trying to log in');
-                return auth.$login('password', user);
+                return ref.$authWithPassword( user);
             },
             /**
              * Logs out current user 
@@ -37,24 +49,55 @@ app.factory('Auth', ['$firebase', '$firebaseSimpleLogin', 'FIREBASE_URL', '$root
              */
             logout: function () {
                 console.log('trying to log out');
-                auth.$logout();
+                ref.$logout();
             },
             /**
              * @returns $firebaseSimpleLogin.$getCurrentUser()
              */
             resolveUser: function () {
                 console.log('getting current user');
-                return auth.$getCurrentUser();
+                //return ref.$getCurrentUser();
+                
+                      
+                return defer.promise;
             },
             /**
              * @returns {Boolean} True if user is logged in
              */
             signedIn: function () {
-                return !!Auth.user.provider;
+                return (Auth.user && Auth.user.provider);
             },
             user: {} //placeholder for user object, created during login event
         };
+        
+        ref.$onAuth (function (authData) {
+           // called whenever the login status is changed.
+           
+           if (authData)
+           {
+               Auth.user = authData;
+          
+                Auth.user.profile = $firebase(oldref.child('profile').child(Auth.user.uid)).$asObject();
+               Auth.user.profile.uid = Auth.user.uid;
 
+                 console.group('User logged in ' + Auth.user.email);
+                 console.log(Auth.user.profile);
+                  console.groupEnd();
+           }
+           else
+           {
+               console.log('logged out');
+               
+                if (Auth.user && Auth.user.profile) {
+                    Auth.user.profile.$destroy(); // Ensure that profile data is destroyed when user logs out
+                }
+            }
+            
+            Auth.user = authData;
+             defer.resolve (Auth.user);
+               
+        });
+/*
         $rootScope.$on('$firebaseSimpleLogin:login', function (e, user) {
             angular.copy(user, Auth.user); // using copy function makes more robust Auth.user references
 
@@ -72,7 +115,7 @@ app.factory('Auth', ['$firebase', '$firebaseSimpleLogin', 'FIREBASE_URL', '$root
                 Auth.user.profile.$destroy(); // Ensure that profile data is destroyed when user logs out
             }
             angular.copy({}, Auth.user); // Clear Auth.user field
-        });
+        });*/
 
         return Auth;
     }]);

@@ -1,135 +1,129 @@
-<div class='container'>
+<div class='container-fluid'>
     <div class='row'>
-        <div class='col-sm-12'>
-            <form class="form-inline">
-                <input type='text' ng-model="search.title" />
-                <select ng-model='search.club' class="form-control">
-                    <option value=''>All Teams</option>
-                    <option value='broncos'>Broncos</option>
-                    <option value='raiders'>Raiders</option>
-                    <option value='titans'>Titans</option>
-                    <option value='roosters'>Roosters</option>
-                    <option value='rabbitohs'>Rabbitohs</option>
-                    <option value='eels'>Eels</option>
-                    <option value='sharks'>Sharks</option>
-                    <option value='cowboys'>Cowboys</option>
-                    <option value='panthers'>Panthers</option>
-                    <option value='bulldogs'>Bulldogs</option>
-                    <option value='tigers'>Tigers</option>
-                </select>
-                <div class="checkbox">
-                    <label> 
-                        <input type='checkbox' ng-model='search.position.fullback' />
-                        Fullback
-                    </label>
-                </div>
-                <div class="checkbox">
-                    <label>
-                        <input type='checkbox' ng-model='search.position.wing' />
-                        Winger
-                    </label>
-                </div>
-                <div class="checkbox">
-                    <label>
-                        <input type='checkbox' ng-model='search.position.centre' />
-                        Centre
-                    </label>
-                </div>
-                <div class="checkbox">
-                    <label>
-                        <input type='checkbox' ng-model='search.position.halfback' />
-                        Halfback
-                    </label>
-                </div>
-                <div class="checkbox">
-                    <label>
-                        <input type='checkbox' ng-model='search.position.hooker' />
-                        Hooker
-                    </label>
-                </div>
-                <div class="checkbox">
-                    <label>
-                        <input type='checkbox' ng-model='search.position.backrow' />
-                        Backrow
-                    </label>
-                </div>
-                <div class="checkbox">
-                    <label>
-                        <input type='checkbox' ng-model='search.position.prop' />
-                        Prop
-                    </label>
-                </div>
-                <div class="checkbox">
-                    <label>
-                        <input type='checkbox' ng-model='search.position.goalkick' />
-                        Goal Kick
-                    </label>
-                </div>
-            </form>
+        <div id="sidebar" class='col-md-4'>
+            <div class="panel panel-default">
+                <!-- Default panel contents -->
+                <div class="panel-heading"><i class="fa fa-filter"></i> Filter Results</div>
+                <div class="panel-body">
+                    <form>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="basic-addon1">Search for:</span>
+                                <input type='text' ng-model="search.title" class="form-control" placeholder="Filter auctions by Name" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <select ng-model='search.club' class="form-control">
+                                <option value=''>All Teams</option>
+                                <option value='broncos'>Broncos</option>
+                                <option value='raiders'>Raiders</option>
+                                <option value='titans'>Titans</option>
+                                <option value='roosters'>Roosters</option>
+                                <option value='rabbitohs'>Rabbitohs</option>
+                                <option value='eels'>Eels</option>
+                                <option value='sharks'>Sharks</option>
+                                <option value='cowboys'>Cowboys</option>
+                                <option value='panthers'>Panthers</option>
+                                <option value='bulldogs'>Bulldogs</option>
+                                <option value='tigers'>Tigers</option>
+                            </select>
+                        </div>
+                        <div class="checkbox">
+                            <label> 
+                                <input type='checkbox' ng-model='search.position.fullback' />
+                                Fullback
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type='checkbox' ng-model='search.position.wing' />
+                                Winger
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type='checkbox' ng-model='search.position.centre' />
+                                Centre
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type='checkbox' ng-model='search.position.halfback' />
+                                Halfback
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type='checkbox' ng-model='search.position.hooker' />
+                                Hooker
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type='checkbox' ng-model='search.position.backrow' />
+                                Backrow
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type='checkbox' ng-model='search.position.prop' />
+                                Prop
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type='checkbox' ng-model='search.position.goalkick' />
+                                Goal Kick
+                            </label>
+                        </div>
+                    </form>
+                </div>              
+            </div>
         </div>
-    </div>
-    <div class='row'>
-        <div class="col-sm-6 col-md-4 col-lg-3" ng-repeat="auction in posts| filter:search " ng-if="auction.auctionStatus === filterStatus">
+        <div class='list-group col-md-8'>
+            <div class="list-group-item" ng-repeat="auction in posts| filter:search " ng-if="auction.auctionStatus === filterStatus">
 
-            <div data-ngCloak data-auctionId='{{auction.$id}}' class="panel panel-default {{auction.expiry}} {{auction.auctionStatus}}">
-                <div class="panel-heading">
-                    <!--<a ng-href="#/auction/{{auction.$id}}">-->{{auction.title| capitaliseFirstLetter }}<!--</a>-->
-                </div>
-                <!--<div class="panel-body">{{auction.description}}</div>-->
-                <table class="table">
-                    <tr>
-                        <th>Price</th>
-                        <td>{{currentPrice(auction) | commaThousands}}</td>
-                    </tr>
-                    <!-- <tr>
-                        <th>High Bidder</th>
-                        <td>{{auction.winningBidder| capitaliseFirstLetter}}</td>
-                    </tr>
-                    <tr>
-                        <th>Ending</th>
-                        <td data-endtime="{{auction.endtimestamp}}">
-                            {{auction.endtime| formatTime }}<br/>
-                            {{auction.timeleft| dateFromNow }}
-                        </td>
-                    </tr>-->
-                    <tr>
-                        <th>Club</th>
-                        <td>{{auction.club| capitaliseFirstLetter}}</td>
-                    </tr>
-                    <tr>
-                        <th>Positions</th>
-                        <td>
-                            <span class="label label-success" ng-show="auction.position.fullback">Fullback</span>
-                            <span class="label label-success" ng-show="auction.position.wing">Winger</span>
-                            <span class="label label-success" ng-show="auction.position.centre">Centre</span>
-                            <span class="label label-success" ng-show="auction.position.halfback">Halfback</span>
-                            <span class="label label-warning" ng-show="auction.position.hooker">Hooker</span>
-                            <span class="label label-warning" ng-show="auction.position.backrow">Backrower</span>
-                            <span class="label label-warning" ng-show="auction.position.prop">Prop</span>
-                            <span class="label label-info" ng-show="auction.position.goalkick">Goal Kick</span>
-                        </td>
-                    </tr>
-                    <tr ng-if="auction.auctionStatus === 'complete'">
-                        <th>Seller</th>
-                        <td>{{auction.creatorName| capitaliseFirstLetter }}</td>
-                    </tr>
-                    <tr>
-                        <th>Action</th>
-                        <td>
-                            <span class="btn-group" role="group">                                        
-                                <button class="btn btn-info" 
-                                        ng-click="activateAuction(auction.$id, user.profile.username, user.profile.uid)"
-                                        type="button">Nominate</button>
+                <div data-ngCloak data-auctionId='{{auction.$id}}' class="{{auction.expiry}} {{auction.auctionStatus}}" data-endtime="{{auction.endtimestamp}}">
+                    <h4>{{auction.title| capitaliseFirstLetter }} <span class="btn-group pull-right" role="group">                                        
+                            <button class="btn btn-info" 
+                                    ng-click="activateAuction(auction.$id, user.profile.username, user.profile.uid)"
+                                    type="button">Nominate</button>
+                        </span></h4>
+                    <!--<div class="panel-body">{{auction.description}}</div>-->
+                    <p>
+                        <span class='label label-default' title='500 gil'  style='font-size:0.7em;line-height:2em;'>
+                            <span class = "fa-stack fa-lg" style="font-size:0.5em;">
+                                <i class = "fa fa-stack-2x" style = "color:white">|</i>
+                                <i class = "fa fa-stack-2x" style = "color:white">G</i>
                             </span>
-                            <!-- <span class="btn-group" role="group">
-                                <button class="btn btn-danger" 
-                                        ng-click="deleteAuction(auction)"
-                                        type="button">Delete Auction</button>
-                            </span>-->
-                        </td>
-                    </tr>
-                </table>
+                            {{currentPrice(auction) | commaThousands}}
+                        </span>
+                    </p>
+                    <p>
+                        Coach: {{auction.winningBidder| capitaliseFirstLetter}}
+                    </p>
+                    <p>
+                        Club: {{auction.club| capitaliseFirstLetter}}
+                    </p>
+                    <p>Ending: {{auction.endtime| formatTime }}, {{auction.timeleft| dateFromNow }}</p>
+                    <p>
+                        Positions: <span class="label label-success" ng-show="auction.position.fullback">Fullback</span>
+                        <span class="label label-success" ng-show="auction.position.wing">Winger</span>
+                        <span class="label label-success" ng-show="auction.position.centre">Centre</span>
+                        <span class="label label-success" ng-show="auction.position.halfback">Halfback</span>
+                        <span class="label label-warning" ng-show="auction.position.hooker">Hooker</span>
+                        <span class="label label-warning" ng-show="auction.position.backrow">Backrower</span>
+                        <span class="label label-warning" ng-show="auction.position.prop">Prop</span>
+                        <span class="label label-info" ng-show="auction.position.goalkick">Goal Kick</span>
+                    </p>
+                    <p>Nominated by: {{auction.creatorName| capitaliseFirstLetter }}</p>
+
+                    <!-- <span class="btn-group" role="group">
+                    <button class="btn btn-danger" 
+                    ng-click="deleteAuction(auction)"
+                    type="button">Delete Auction</button>
+                    </span>-->
+                </div>
             </div>
         </div>
     </div>
-</div>

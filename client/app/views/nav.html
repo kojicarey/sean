@@ -14,26 +14,26 @@
     <div ng-controller="NavCtrl" class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav navbar-left">           
             <li ng-show="signedIn()">
-                <a href="#/about">about</a>
+                <a href="#/about"><i class="fa fa-info"></i> about</a>
             </li>
             <li ng-show="signedIn()">
-                <a href="#/create">create</a>
+                <a href="#/create"><i class="fa fa-user-plus"></i> create</a>
             </li>
             <li ng-show="signedIn()">
-                <a href="#/auctions/pending">pending</a>
+                <a href="#/auctions/pending"><i class="fa fa-user"></i> pending</a>
             </li>
             <li ng-show="signedIn()">
-                <a href="#/activeAuction">active</a>
+                <a href="#/activeAuction"><i class="fa fa-legal"></i> active</a>
             </li>
             <li ng-show="signedIn()">
-                <a href="#/auctions/complete">completed</a>
+                <a href="#/auctions/complete"><i class="fa fa-users"></i> completed</a>
             </li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
             <li ng-show="signedIn()">
-                <a ng-href="#/users/{{ user.profile.uid}}">
-                    <img ng-src="http://www.gravatar.com/avatar/{{ user.profile.md5_hash}}" class="nav-pic" />
-                    {{ user.profile.username}}
+                <a ng-href="#/users/{{ auth.user.profile.uid}}">
+                    <img ng-src="http://www.gravatar.com/avatar/{{ auth.user.profile.md5_hash}}" class="nav-pic" />
+                    {{ auth.user.profile.username}}
                 </a>
             </li>
             <li ng-show="signedIn()">
