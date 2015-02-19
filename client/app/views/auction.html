@@ -5,7 +5,7 @@
     </div>
     <div class='row'>
         <div class="col-sm-3">Current Price</div>
-        <div class="col-sm-9">{{currentPrice() | commaThousands}}</div>
+        <div class="col-sm-9">{{currentPrice(auction) | commaThousands}}</div>
     </div>
     <div class='row'>
         <div class="col-sm-3">Highest Bidder</div>
@@ -49,16 +49,19 @@
         <div class="col-sm-12">
             <span class="btn-group" role="group">                                        
                 <button class="btn btn-success" 
+                        ng-show="auction.auctionstatus === 'active'"
                         ng-click="closeAuction(auction)"
                         type="button">Close Bidding</button>
             </span>
             <span class="btn-group" role="group">                                        
                 <button class="btn btn-info" 
+                        ng-show="auction.auctionstatus === 'complete'"
                         ng-click="activateAuction(auction.$id, user.profile.username, user.profile.uid)"
                         type="button">Nominate</button>
             </span>
             <span class="btn-group" role="group">                                        
                 <button class="btn btn-info" 
+                        ng-show="auction.auctionstatus === 'active'"
                         ng-click="deActivateAuction(auction.$id)"
                         type="button">De-nominate</button>
             </span>
@@ -77,8 +80,8 @@
         <!-- bids -->
         <div class="panel panel-primary">
             <div class="panel-heading"><i class="fa fa-legal"></i> Bids</div>
-            <div class="panel-body" ng-show="auction.auctionStatus === 'active'">
-                <form name="helpForm" novalidate role="form" class="form-horizontal">
+            <div class="panel-body" ng-show="auction.auctionstatus === 'active'">
+                <form name="helpForm" novalidate role="form" class="form-horizontal" ng-submit="placeBid()">
                     <div class="form-group">
                         <label for="bid-amount" class="col-sm-3 control-label">
                             Place a bid
@@ -89,17 +92,18 @@
                                     <span class="btn-group" role="group">                                        
                                         <button class="btn btn-default" 
                                                 ng-click="placeBid(1000)"
-                                                type="button">+1,000</button>
+                                                type="button">+1,000<span class="fa-stack fa-lg" style="font-size:0.5em;height:2.5em;"><i class = "fa fa-stack-2x" style = "">|</i><i class = "fa fa-stack-2x" style = "">G</i></span>
+                                        </button>
                                     </span>
                                     <span class="btn-group" role="group">
                                         <button class="btn btn-default" 
                                                 ng-click="placeBid(5000)"
-                                                type="button">+5,000</button>
+                                                type="button">+5,000<span class="fa-stack fa-lg" style="font-size:0.5em;height:2.5em;"><i class = "fa fa-stack-2x" style = "">|</i><i class = "fa fa-stack-2x" style = "">G</i></span></button>
                                     </span>
                                     <span class="btn-group" role="group">
                                         <button class="btn btn-default" 
                                                 ng-click="placeBid(10000)"
-                                                type="button">+10,000</button>
+                                                type="button">+10,000<span class="fa-stack fa-lg" style="font-size:0.5em;height:2.5em;"><i class = "fa fa-stack-2x" style = "">|</i><i class = "fa fa-stack-2x" style = "">G</i></span></button>
                                     </span>
                                 </span>
                             </p>
@@ -110,9 +114,8 @@
                                        class="form-control" 
                                        placeholder="Minimum increment is 1000" />
                                 <span class="input-group-btn">
-                                    <button ng-click="placeBid()"
-                                            class="btn btn-default" 
-                                            type="button">Bid</button>
+                                    <button class="btn btn-default" 
+                                            type="submit">Bid</button>
                                 </span>
                             </div><!-- /input-group -->
                             <p>{{errorMsg}}</p>
@@ -143,33 +146,33 @@
         <!-- comments -->
         <div class="panel panel-primary">
             <div class="panel-heading"><i class="fa fa-comment"></i> Comments</div>
-            <ul class="list-group">
-                <li class="list-group-item" ng-repeat="comment in comments">
-                    <p>{{ comment.text}}</p>
-                    <p class="author">posted by
-                        <a ng-href="#/users/{{ comment.creatorUID}}">
-                            {{ comment.creator}}
-                        </a>
-                        <a ng-href=""
-                           ng-click="deleteComment(comment)"
-                           ng-show="signedIn() && comment.creatorUID === user.uid"
-                           style="cursor: pointer;">
-                            (delete)
-                        </a>
-                    </p>
-                </li>
-            </ul>
             <div class="panel-body">
+                <p ng-repeat="comment in comments">
+                    <a ng-href="#/users/{{ comment.creatorUID}}"
+                       class="label label-warning">{{ comment.creator}}</a>&nbsp;{{ comment.text}} 
+                    <a ng-href=""
+                       ng-click="deleteComment(comment)"
+                       ng-show="signedIn() && comment.creatorUID === user.uid"
+                       style="cursor: pointer;">
+                        (delete)
+                    </a>
+                </p>
+                <br/>
                 <div class="cmt-form">
                     <div ng-hide="signedIn()">
                         <p><a href="#/login">Sign in</a> to post a comment</p>
                     </div>
                     <form ng-show="signedIn()" ng-submit="addComment()">
-                        <textarea
-                            ng-model="commentText"
-                            placeholder="Post a Comment"
-                            class="form-control"></textarea><br />
-                        <input type="submit" value="Post Comment" class="btn btn-primary" />
+                        <div class="input-group">
+                            <input type="text"
+                                   ng-model="commentText"
+                                   placeholder="Post a Comment"
+                                   class="form-control" />
+                            <div class="input-group-btn">
+                                <input type="submit" value="Post Comment" class="btn btn-primary" />
+                            </div>
+                        </div>
+
                     </form>
                 </div>
             </div>

@@ -8,14 +8,15 @@
 app.controller('PostsCtrl', ['$scope', 'Post', 'Auth', 'Helper', '$location', '$routeParams', function ($scope, Post, Auth, Helper, $location, $routeParams) {
         Helper.jQueryDT();
 
+        console.log($routeParams.auctionstatus);
+
         $scope.posts = Post.all;
 
-        if ($routeParams.auctionStatus === 'won') {
+        if ($routeParams.auctionstatus === 'won') {
             $scope.filterStatus = 'complete';
-            $scope.posts = Post.all;
         }
         else {
-            $scope.filterStatus = $routeParams.auctionStatus;
+            $scope.filterStatus = $routeParams.auctionstatus;
         }
 
         $scope.user = Auth.user;
@@ -26,11 +27,11 @@ app.controller('PostsCtrl', ['$scope', 'Post', 'Auth', 'Helper', '$location', '$
 
         $scope.currentPrice = function (auction) {
             if (!auction.winningBidder) {
-                console.log('No winning bidder. So use start amount: ' + auction.startPrice);
-                return auction.startPrice;
+                console.log('No winning bidder. So use start amount: ' + auction.startprice);
+                return auction.startprice;
             }
             else {
-                console.log('Found winning bidder:' + auction.winningBidderAmount);
+                //console.log('Found winning bidder:' + auction.winningBidderAmount);
                 return auction.winningBidderAmount;
             }
         };
@@ -41,8 +42,9 @@ app.controller('PostsCtrl', ['$scope', 'Post', 'Auth', 'Helper', '$location', '$
             $scope.timeLeftString = moment($scope.endTime, 'dddd DD MMM, h:mm A').fromNow();
         };
 
-        $scope.activateAuction = function (auctionId, username, uid) {
-            Post.activateAuction(auctionId, username, uid).then(function () {
+        $scope.activateAuction = function (auctionId) {
+            console.log("Activating Auction via Posts Controller");
+            Post.activateAuction(auctionId, Auth.user.profile.username, Auth.user.profile.uid).then(function () {
                 $location.path('/activeAuction');
             });
         }

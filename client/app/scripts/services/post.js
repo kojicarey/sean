@@ -26,19 +26,20 @@ app.factory('Post', ['$firebase', 'FIREBASE_URL', 'Queue', function ($firebase, 
             activateAuction: function (auctionId, userName, userId) {
                 $firebase(refAuctionQueue).$push(auctionId);
                 console.log(auctionId, userName, userId);
-                return $firebase(refPosts.child(auctionId)).$update({auctionStatus: 'active', creatorName: userName, creatorUID: userId});
+                return $firebase(refPosts.child(auctionId)).$update({auctionstatus: 'active', creatorName: userName, creatorUID: userId});
             },
             deActivateAuction: function (auctionId) {
                 Queue.deQueue(auctionId);
-                return $firebase(refPosts.child(auctionId)).$update({auctionStatus: 'pending', creatorName: null, creatorUID: null});
+                return $firebase(refPosts.child(auctionId)).$update({auctionstatus: 'pending', creatorName: null, creatorUID: null});
             },
             closeAuction: function (auction) {
-                debugger;
-                auction.auctionStatus = 'complete';
+                auction.auctionstatus = 'complete';
                 auction.endTime = Firebase.ServerValue.TIMESTAMP;
+                debugger;
                 return auction
                         .$save()
                         .then(function (auctionRef) {
+                            debugger;
                             Queue.deQueue(auction.$id);
                             $firebase(refWinList.child(auction.winningBidderUID))
                                     .$push(auction.$id);
@@ -50,7 +51,7 @@ app.factory('Post', ['$firebase', 'FIREBASE_URL', 'Queue', function ($firebase, 
                 posts.$remove(post);
             },
             create: function (post) {
-                post.auctionStatus = 'pending';
+                post.auctionstatus = 'pending';
                 post.winningBidderAmount = post.startPrice;
                 return posts
                         .$add(post)

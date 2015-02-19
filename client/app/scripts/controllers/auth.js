@@ -20,7 +20,9 @@ app.controller('AuthCtrl', ['$scope', '$location', 'Auth', 'user', function ($sc
          * Call this method to register a user
          */
         $scope.register = function () {
+            console.log("calling $scope.register");
             Auth.register($scope.user, function (error, user) {
+                debugger;
                 if (error) return $scope.error = error.toString ();
                 
                 Auth.login($scope.user, function () {

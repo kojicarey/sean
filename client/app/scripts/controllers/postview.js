@@ -47,7 +47,6 @@ app.controller('PostViewCtrl', ['$scope', '$routeParams', 'Post', 'Auth', '$fire
             });
         };
         $scope.closeAuction = function (auctionId) {
-            debugger;
             Post.closeAuction(auctionId).then(function () {
                 $location.path('/auctions/complete');
             });
@@ -62,8 +61,8 @@ app.controller('PostViewCtrl', ['$scope', '$routeParams', 'Post', 'Auth', '$fire
         };
         $scope.currentPrice = function () {
             if (!$scope.auction.winningBidder) {
-                console.log('No winning bidder. So use start amount: ' + $scope.auction.startPrice);
-                return $scope.auction.startPrice;
+                console.log('No winning bidder. So use start amount: ' + $scope.auction.startprice);
+                return $scope.auction.startprice;
             }
             else {
                 console.log('Found winning bidder:' + $scope.auction.winningBidderAmount);

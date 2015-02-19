@@ -81,9 +81,9 @@
             </div>
         </div>
         <div class='list-group col-md-8'>
-            <div class="list-group-item" ng-repeat="auction in posts| filter:search " ng-if="auction.auctionStatus === filterStatus">
+            <div class="list-group-item" ng-repeat="auction in posts| filter:search" ng-if="auction.auctionstatus === filterStatus">
 
-                <div data-ngCloak data-auctionId='{{auction.$id}}' class="{{auction.expiry}} {{auction.auctionStatus}}" data-endtime="{{auction.endtimestamp}}">
+                <div data-ngCloak data-auctionId='{{auction.$id}}' class="{{auction.expiry}} {{auction.auctionstatus}}" data-endtime="{{auction.endtimestamp}}">
                     <h4>{{auction.title| capitaliseFirstLetter }} <span class="btn-group pull-right" role="group">                                        
                             <button class="btn btn-info" 
                                     ng-click="activateAuction(auction.$id, user.profile.username, user.profile.uid)"
@@ -91,7 +91,7 @@
                         </span></h4>
                     <!--<div class="panel-body">{{auction.description}}</div>-->
                     <p>
-                        <span class='label label-default' title='500 gil'  style='font-size:0.7em;line-height:2em;'>
+                        <span class='label label-default' title='{{currentPrice(auction) | commaThousands}} GNRL Dollars'  style='font-size:0.7em;line-height:2em;'>
                             <span class = "fa-stack fa-lg" style="font-size:0.5em;">
                                 <i class = "fa fa-stack-2x" style = "color:white">|</i>
                                 <i class = "fa fa-stack-2x" style = "color:white">G</i>

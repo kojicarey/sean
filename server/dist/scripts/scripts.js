@@ -24,7 +24,7 @@ app.config([
     $routeProvider.when('/', {
       templateUrl: 'views/landing.html',
       controller: 'PostsCtrl'
-    }).when('/auctions/:auctionStatus', {
+    }).when('/auctions/:auctionstatus', {
       templateUrl: 'views/auctions.html',
       controller: 'PostsCtrl'
     }).when('/about', { templateUrl: 'views/about.html' }).when('/register', {
@@ -100,12 +100,12 @@ app.controller('PostsCtrl', [
   '$routeParams',
   function ($scope, Post, Auth, Helper, $location, $routeParams) {
     Helper.jQueryDT();
+    console.log($routeParams.auctionstatus);
     $scope.posts = Post.all;
-    if ($routeParams.auctionStatus === 'won') {
+    if ($routeParams.auctionstatus === 'won') {
       $scope.filterStatus = 'complete';
-      $scope.posts = Post.all;
     } else {
-      $scope.filterStatus = $routeParams.auctionStatus;
+      $scope.filterStatus = $routeParams.auctionstatus;
     }
     $scope.user = Auth.user;
     $scope.deletePost = function (post) {
@@ -113,10 +113,10 @@ app.controller('PostsCtrl', [
     };
     $scope.currentPrice = function (auction) {
       if (!auction.winningBidder) {
-        console.log('No winning bidder. So use start amount: ' + auction.startPrice);
-        return auction.startPrice;
+        console.log('No winning bidder. So use start amount: ' + auction.startprice);
+        return auction.startprice;
       } else {
-        console.log('Found winning bidder:' + auction.winningBidderAmount);
+        //console.log('Found winning bidder:' + auction.winningBidderAmount);
         return auction.winningBidderAmount;
       }
     };
@@ -125,8 +125,9 @@ app.controller('PostsCtrl', [
       console.log(moment($scope.endTime, 'dddd DD MMM, h:mm A').fromNow());
       $scope.timeLeftString = moment($scope.endTime, 'dddd DD MMM, h:mm A').fromNow();
     };
-    $scope.activateAuction = function (auctionId, username, uid) {
-      Post.activateAuction(auctionId, username, uid).then(function () {
+    $scope.activateAuction = function (auctionId) {
+      console.log('Activating Auction via Posts Controller');
+      Post.activateAuction(auctionId, Auth.user.profile.username, Auth.user.profile.uid).then(function () {
         $location.path('/activeAuction');
       });
     };
@@ -226,7 +227,6 @@ app.controller('PostViewCtrl', [
       });
     };
     $scope.closeAuction = function (auctionId) {
-      debugger;
       Post.closeAuction(auctionId).then(function () {
         $location.path('/auctions/complete');
       });
@@ -241,8 +241,8 @@ app.controller('PostViewCtrl', [
     };
     $scope.currentPrice = function () {
       if (!$scope.auction.winningBidder) {
-        console.log('No winning bidder. So use start amount: ' + $scope.auction.startPrice);
-        return $scope.auction.startPrice;
+        console.log('No winning bidder. So use start amount: ' + $scope.auction.startprice);
+        return $scope.auction.startprice;
       } else {
         console.log('Found winning bidder:' + $scope.auction.winningBidderAmount);
         return $scope.auction.winningBidderAmount;
@@ -345,7 +345,9 @@ app.controller('AuthCtrl', [
          * Call this method to register a user
          */
     $scope.register = function () {
+      console.log('calling $scope.register');
       Auth.register($scope.user, function (error, user) {
+        debugger;
         if (error)
           return $scope.error = error.toString();
         Auth.login($scope.user, function () {
@@ -464,10 +466,10 @@ app.controller('ActiveAuctionControl', [
       $scope.signedIn = Auth.signedIn;
       $scope.currentPrice = function () {
         if (!$scope.auction.winningBidder) {
-          console.log('No winning bidder. So use start amount: ' + $scope.auction.startPrice);
-          return $scope.auction.startPrice;
+          //console.log('No winning bidder. So use start amount: ' + $scope.auction.startprice);
+          return $scope.auction.startprice;
         } else {
-          console.log('Found winning bidder:' + $scope.auction.winningBidderAmount);
+          //console.log('Found winning bidder:' + $scope.auction.winningBidderAmount);
           return $scope.auction.winningBidderAmount;
         }
       };
@@ -619,7 +621,7 @@ app.factory('Post', [
           $firebase(refAuctionQueue).$push(auctionId);
           console.log(auctionId, userName, userId);
           return $firebase(refPosts.child(auctionId)).$update({
-            auctionStatus: 'active',
+            auctionstatus: 'active',
             creatorName: userName,
             creatorUID: userId
           });
@@ -627,16 +629,17 @@ app.factory('Post', [
         deActivateAuction: function (auctionId) {
           Queue.deQueue(auctionId);
           return $firebase(refPosts.child(auctionId)).$update({
-            auctionStatus: 'pending',
+            auctionstatus: 'pending',
             creatorName: null,
             creatorUID: null
           });
         },
         closeAuction: function (auction) {
-          debugger;
-          auction.auctionStatus = 'complete';
+          auction.auctionstatus = 'complete';
           auction.endTime = Firebase.ServerValue.TIMESTAMP;
+          debugger;
           return auction.$save().then(function (auctionRef) {
+            debugger;
             Queue.deQueue(auction.$id);
             $firebase(refWinList.child(auction.winningBidderUID)).$push(auction.$id);
             return auctionRef;
@@ -647,7 +650,7 @@ app.factory('Post', [
           posts.$remove(post);
         },
         create: function (post) {
-          post.auctionStatus = 'pending';
+          post.auctionstatus = 'pending';
           post.winningBidderAmount = post.startPrice;
           return posts.$add(post).then(function (postRef) {
             $firebase(refUserPosts.child(post.creatorUID)).$push(postRef.name());
@@ -682,15 +685,17 @@ app.factory('Auth', [
   '$q',
   function ($firebase, $firebaseAuth, FIREBASE_URL, $rootScope, $q) {
     var oldref = new Firebase(FIREBASE_URL);
+    var refProfile = oldref.child('profile');
     var ref = $firebaseAuth(oldref);
     var defer = $q.defer();
     var Auth = {
         register: function (user, callback) {
           console.log('trying to register user');
-          return ref.$createUser({
+          ref.$createUser({
             email: user.email,
             password: user.password
-          }, callback);
+          });
+          callback(null, user);
         },
         createProfile: function (user, callback) {
           var profile = {
@@ -698,8 +703,8 @@ app.factory('Auth', [
               uid: user.uid,
               md5_hash: user.md5_hash
             };
-          var profileRef = $firebase(ref.child('profile'));
-          profileRef.$set(user.uid, profile).then(function () {
+          console.log('trying to write user profile', user.uid, profile);
+          $firebase(refProfile).$set(user.uid, profile).then(function () {
             callback(null);
           }, function (error) {
             callback(error);
@@ -742,24 +747,24 @@ app.factory('Auth', [
       defer.resolve(Auth.user);
     });
     /*
-        $rootScope.$on('$firebaseSimpleLogin:login', function (e, user) {
-            angular.copy(user, Auth.user); // using copy function makes more robust Auth.user references
-
-            Auth.user.profile = $firebase(ref.child('profile').child(Auth.user.uid)).$asObject();
-            Auth.user.profile.uid = user.uid;
-
-            console.group('User logged in ' + user.email);
-            console.log(Auth.user.profile);
-            console.groupEnd();
-        });
-        $rootScope.$on('$firebaseSimpleLogin:logout', function () {
-            console.log('logged out');
-
-            if (Auth.user && Auth.user.profile) {
-                Auth.user.profile.$destroy(); // Ensure that profile data is destroyed when user logs out
-            }
-            angular.copy({}, Auth.user); // Clear Auth.user field
-        });*/
+         $rootScope.$on('$firebaseSimpleLogin:login', function (e, user) {
+         angular.copy(user, Auth.user); // using copy function makes more robust Auth.user references
+         
+         Auth.user.profile = $firebase(ref.child('profile').child(Auth.user.uid)).$asObject();
+         Auth.user.profile.uid = user.uid;
+         
+         console.group('User logged in ' + user.email);
+         console.log(Auth.user.profile);
+         console.groupEnd();
+         });
+         $rootScope.$on('$firebaseSimpleLogin:logout', function () {
+         console.log('logged out');
+         
+         if (Auth.user && Auth.user.profile) {
+         Auth.user.profile.$destroy(); // Ensure that profile data is destroyed when user logs out
+         }
+         angular.copy({}, Auth.user); // Clear Auth.user field
+         });*/
     return Auth;
   }
 ]);

@@ -3,7 +3,7 @@
 /**
  * This control takes a postId parameter to retrieve a particular post
  */
-app.controller('ActiveAuctionControl', ['$scope', '$routeParams', 'Post', 'Auth', '$firebase', 'Queue', '$location', function ($scope, $routeParams, Post, Auth, $firebase, Queue,$location) {
+app.controller('ActiveAuctionControl', ['$scope', '$routeParams', 'Post', 'Auth', '$firebase', 'Queue', '$location', function ($scope, $routeParams, Post, Auth, $firebase, Queue, $location) {
         //$scope.auction;
         Queue.getQueue().then(function (nextAuctionId) {
             $scope.auction = Post.get(nextAuctionId); // get the postId from the URL
@@ -67,13 +67,12 @@ app.controller('ActiveAuctionControl', ['$scope', '$routeParams', 'Post', 'Auth'
             $scope.signedIn = Auth.signedIn;
 
             $scope.currentPrice = function () {
-
                 if (!$scope.auction.winningBidder) {
-                    console.log('No winning bidder. So use start amount: ' + $scope.auction.startPrice);
-                    return $scope.auction.startPrice;
+                    //console.log('No winning bidder. So use start amount: ' + $scope.auction.startprice);
+                    return $scope.auction.startprice;
                 }
                 else {
-                    console.log('Found winning bidder:' + $scope.auction.winningBidderAmount);
+                    //console.log('Found winning bidder:' + $scope.auction.winningBidderAmount);
                     return $scope.auction.winningBidderAmount;
                 }
             };
