@@ -14,7 +14,7 @@ app.filter('formatTime', function () {
 });
 
 app.filter('formatTimeShort', function () {
-   return function (str) {
+    return function (str) {
         return moment(str).format('DD/MM h:mmA');
     };
 });

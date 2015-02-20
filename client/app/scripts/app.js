@@ -74,21 +74,11 @@ app.config(function ($routeProvider) {
             })
             .when('/users/:userId', {
                 templateUrl: 'views/profile.html',
-                controller: 'ProfileCtrl',
-                resolve: {
-                    user: function (Auth) { // Do it this way, to ensure auth is resolved before content is displayed
-                        return Auth.resolveUser();
-                    }
-                }
+                controller: 'ProfileCtrl'
             })
             .when('/login', {
                 templateUrl: 'views/login.html',
-                controller: 'AuthCtrl',
-                resolve: {
-                    user: function (Auth) { // Do it this way, to ensure auth is resolved before content is displayed
-                        return Auth.resolveUser();
-                    }
-                }
+                controller: 'AuthCtrl'
             })
             .otherwise({
                 redirectTo: '/'

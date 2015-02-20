@@ -20,16 +20,20 @@ app.controller('AuthCtrl', ['$scope', '$location', 'Auth', 'user', function ($sc
          * Call this method to register a user
          */
         $scope.register = function () {
-            console.log("calling $scope.register");
-            Auth.register($scope.user, function (error, user) {
-                debugger;
-                if (error) return $scope.error = error.toString ();
-                
-                Auth.login($scope.user, function () {
+            console.log("$scope.register()");
+            Auth.register($scope.user, function callback(error, user) {
+                if (error)
+                    return $scope.error = error.toString();
+
+                Auth.login($scope.user, function success(authData) {
                     user.username = $scope.user.username;
+                    user.uid = authData.uid;
+                    user.md5_hash = md5($scope.user.email);
                     Auth.createProfile(user, function () {
-                      $location.path('/');
-                  });
+                        $location.path('/');
+                    });
+                }, function error() {
+                    $scope.error = error.toString();
                 });
             });
         };
