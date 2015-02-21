@@ -110,7 +110,7 @@ app.controller('PostsCtrl', [
     };
     $scope.currentPrice = function (auction) {
       if (!auction.winningBidder) {
-        console.log('No winning bidder. So use start amount: ' + auction.startprice);
+        //console.log('No winning bidder. So use start amount: ' + auction.startprice);
         return auction.startprice;
       } else {
         //console.log('Found winning bidder:' + auction.winningBidderAmount);
@@ -776,7 +776,7 @@ app.factory('Auth', [
         Auth.user = authData;
         Auth.user.profile = $firebase(oldref.child('profile').child(Auth.user.uid)).$asObject();
         Auth.user.profile.uid = Auth.user.uid;
-        console.group('User logged in ' + Auth.user.email);
+        console.group('User logged in ' + authData.password.email);
         console.log(Auth.user.profile);
         console.groupEnd();
       } else {

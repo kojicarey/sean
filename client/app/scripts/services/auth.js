@@ -89,8 +89,7 @@ app.factory('Auth', ['$firebase', '$firebaseAuth', 'FIREBASE_URL', '$rootScope',
 
                 Auth.user.profile = $firebase(oldref.child('profile').child(Auth.user.uid)).$asObject();
                 Auth.user.profile.uid = Auth.user.uid;
-
-                console.group('User logged in ' + Auth.user.email);
+                console.group('User logged in ' + authData.password.email);
                 console.log(Auth.user.profile);
                 console.groupEnd();
             }

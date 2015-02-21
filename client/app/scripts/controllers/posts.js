@@ -27,7 +27,7 @@ app.controller('PostsCtrl', ['$scope', 'Post', 'Auth', 'Helper', '$location', '$
 
         $scope.currentPrice = function (auction) {
             if (!auction.winningBidder) {
-                console.log('No winning bidder. So use start amount: ' + auction.startprice);
+                //console.log('No winning bidder. So use start amount: ' + auction.startprice);
                 return auction.startprice;
             }
             else {
