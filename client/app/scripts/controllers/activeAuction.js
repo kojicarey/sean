@@ -5,10 +5,16 @@
  */
 app.controller('ActiveAuctionControl', ['$scope', '$routeParams', 'Post', 'Auth', '$firebase', 'Queue', '$location', function ($scope, $routeParams, Post, Auth, $firebase, Queue, $location) {
         //$scope.auction;
-        Queue.getQueue().then(function (nextAuctionId) {
+        Queue.getFirst().then(function (nextAuctionId) {
             $scope.auction = Post.get(nextAuctionId); // get the postId from the URL
             $scope.comments = Post.comments(nextAuctionId);
             $scope.bids = Post.bids(nextAuctionId);
+
+            Queue.all().then(function (queuePostIds) {
+                console.log(queuePostIds);
+                $scope.queue = Post.getList(queuePostIds);
+            });
+            //
 
             $scope.placeBid = function (increment) {
                 $scope.errorMsg = '';
@@ -93,6 +99,17 @@ app.controller('ActiveAuctionControl', ['$scope', '$routeParams', 'Post', 'Auth'
             $scope.deleteComment = function (comment) {
                 $scope.comments.$remove(comment);
             };
+
+            $scope.isActive = function () {
+                setTimeout(function () {
+                    console.log("Checking status every 3 seconds. Currently: " + $scope.auction.auctionstatus);
+                    if ($scope.auction.auctionstatus !== 'active') {
+                        location.reload();
+                    }
+                    $scope.isActive();
+                }, 3000);
+            };
+            $scope.isActive();
         });
     }]);
 //app.controller('PostViewCtrl', function ($scope, $routeParams, Post, Auth) {

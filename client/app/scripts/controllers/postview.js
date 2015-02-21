@@ -5,6 +5,8 @@
  */
 app.controller('PostViewCtrl', ['$scope', '$routeParams', 'Post', 'Auth', '$firebase', '$location', function ($scope, $routeParams, Post, Auth, $firebase, $location) {
         $scope.auction = Post.get($routeParams.auctionId); // get the postId from the URL
+              
+        
         $scope.comments = Post.comments($routeParams.auctionId);
         $scope.bids = Post.bids($routeParams.auctionId);
         $scope.user = Auth.user;

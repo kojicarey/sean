@@ -11,6 +11,9 @@ app.factory('Post', ['$firebase', 'FIREBASE_URL', 'Queue', function ($firebase, 
         var refUserPosts = ref.child('user_posts');
         var refWinList = ref.child('win_list');
         var refAuctionQueue = ref.child('auction_queue');
+        
+        var refZapierQueue = ref.child('zapier_queue');
+        
         var posts = $firebase(refPosts).$asArray(); // pass reference into $firebase, which provdes wrapper helper functions
 
         var Post = {
@@ -35,11 +38,12 @@ app.factory('Post', ['$firebase', 'FIREBASE_URL', 'Queue', function ($firebase, 
             closeAuction: function (auction) {
                 auction.auctionstatus = 'complete';
                 auction.endTime = Firebase.ServerValue.TIMESTAMP;
-                debugger;
+                //debugger;
                 return auction
                         .$save()
                         .then(function (auctionRef) {
-                            debugger;
+                            //debugger;
+                            $firebase(refZapierQueue).$asArray().$add(auction);                                                        
                             Queue.deQueue(auction.$id);
                             $firebase(refWinList.child(auction.winningBidderUID))
                                     .$push(auction.$id);
@@ -69,6 +73,15 @@ app.factory('Post', ['$firebase', 'FIREBASE_URL', 'Queue', function ($firebase, 
             get: function (auctionId) {
                 console.log("Post.get(" + auctionId + ")");
                 return $firebase(refPosts.child(auctionId)).$asObject();
+            },
+            getList: function (postIdArray) {
+                var posts = {};
+
+                for (var i = 0; i < postIdArray.length; i++) { // loop over each post 
+                    var value = postIdArray[i].$value;
+                    posts[value] = Post.get(value);
+                }
+                return posts;
             },
             /**
              * Delete post object from firebase

@@ -76,9 +76,18 @@ app.config(function ($routeProvider) {
                 templateUrl: 'views/profile.html',
                 controller: 'ProfileCtrl'
             })
+            .when('/users', {
+                templateUrl: 'views/users.html',
+                controller: 'ProfileCtrl'
+            })
             .when('/login', {
                 templateUrl: 'views/login.html',
-                controller: 'AuthCtrl'
+                controller: 'AuthCtrl',
+                resolve: {
+                    user: function (Auth) { // Do it this way, to ensure auth is resolved before content is displayed
+                        return Auth.resolveUser();
+                    }
+                }
             })
             .otherwise({
                 redirectTo: '/'

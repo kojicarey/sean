@@ -7,6 +7,7 @@ app.factory('Queue', ['$window', 'FIREBASE_URL', '$firebase', '$q', function ($w
         var queue = {
             deQueue: function (auctionId) {
                 var defer = $q.defer();
+                console.log('queue.deQueue()');
                 $firebase(queueRef) // get all user posts
                         .$asArray() // as an array
                         .$loaded() // wait until loaded
@@ -24,15 +25,32 @@ app.factory('Queue', ['$window', 'FIREBASE_URL', '$firebase', '$q', function ($w
                         });
                 return defer.promise;
             },
-            getQueue: function () {
+            getFirst: function () {
                 var defer = $q.defer();
-                console.log("trying to get queue");
+                console.log("Queue.getFirst(): retrieving next in queue");
                 $firebase(queueRef) // get all user posts
                         .$asArray() // as an array
                         .$loaded() // wait until loaded
                         .then(function (data) { // then 
-                            console.log("promised content");
-                            defer.resolve(data[0].$value);
+                            if (data[0]) {
+                                console.log("Queue.getFirst(): promised content");
+                                defer.resolve(data[0].$value);
+                            }
+                            else {
+                            }
+                        });
+                console.log("Queue.getFirst(): sending promise");
+                return defer.promise;
+            },
+            all: function () {
+                var defer = $q.defer();
+                console.log("Queue.all(): returning entire queue");
+                $firebase(queueRef) // get all user posts
+                        .$asArray() // as an array
+                        .$loaded() // wait until loaded
+                        .then(function (data) { // then 
+                            console.log("Queue.all(): promised content");
+                            defer.resolve(data);
                         });
                 console.log("sending promise");
                 return defer.promise;

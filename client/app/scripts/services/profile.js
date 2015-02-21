@@ -10,7 +10,12 @@ app.factory('Profile', ['$window', 'FIREBASE_URL', '$firebase', 'Post', '$q', fu
              * Get the user by userid
              */
             get: function (userId) {
+                console.log("profile.get(" + userId + ")");
                 return $firebase(profileRef.child(userId)).$asObject();
+            },
+            all: function () {
+                console.log("profile.all()");
+                return $firebase(profileRef).$asArray();
             },
             /**
              * Get all posts for a specified userId

@@ -65,13 +65,10 @@ app.config([
       }
     }).when('/users/:userId', {
       templateUrl: 'views/profile.html',
-      controller: 'ProfileCtrl',
-      resolve: {
-        user: function (Auth) {
-          // Do it this way, to ensure auth is resolved before content is displayed
-          return Auth.resolveUser();
-        }
-      }
+      controller: 'ProfileCtrl'
+    }).when('/users', {
+      templateUrl: 'views/users.html',
+      controller: 'ProfileCtrl'
     }).when('/login', {
       templateUrl: 'views/login.html',
       controller: 'AuthCtrl',
@@ -345,16 +342,19 @@ app.controller('AuthCtrl', [
          * Call this method to register a user
          */
     $scope.register = function () {
-      console.log('calling $scope.register');
-      Auth.register($scope.user, function (error, user) {
-        debugger;
+      console.log('$scope.register()');
+      Auth.register($scope.user, function callback(error, user) {
         if (error)
           return $scope.error = error.toString();
-        Auth.login($scope.user, function () {
+        Auth.login($scope.user, function success(authData) {
           user.username = $scope.user.username;
+          user.uid = authData.uid;
+          user.md5_hash = md5($scope.user.email);
           Auth.createProfile(user, function () {
             $location.path('/');
           });
+        }, function error() {
+          $scope.error = error.toString();
         });
       });
     };
@@ -388,11 +388,14 @@ app.controller('ProfileCtrl', [
   '$routeParams',
   'Profile',
   function ($scope, $routeParams, Profile) {
-    var uid = $routeParams.userId;
-    $scope.user = Profile.get(uid);
-    Profile.getPosts(uid).then(function (posts) {
-      $scope.posts = posts;
-    });
+    var uid = $routeParams.userId ? $routeParams.userId : '';
+    if (uid) {
+      $scope.user = Profile.get(uid);
+      Profile.getPosts(uid).then(function (posts) {
+        $scope.posts = posts;
+      });
+    }
+    $scope.users = Profile.all();
   }
 ]);
 'use strict';
@@ -409,11 +412,16 @@ app.controller('ActiveAuctionControl', [
   '$location',
   function ($scope, $routeParams, Post, Auth, $firebase, Queue, $location) {
     //$scope.auction;
-    Queue.getQueue().then(function (nextAuctionId) {
+    Queue.getFirst().then(function (nextAuctionId) {
       $scope.auction = Post.get(nextAuctionId);
       // get the postId from the URL
       $scope.comments = Post.comments(nextAuctionId);
       $scope.bids = Post.bids(nextAuctionId);
+      Queue.all().then(function (queuePostIds) {
+        console.log(queuePostIds);
+        $scope.queue = Post.getList(queuePostIds);
+      });
+      //
       $scope.placeBid = function (increment) {
         $scope.errorMsg = '';
         if (!!increment) {
@@ -489,6 +497,16 @@ app.controller('ActiveAuctionControl', [
       $scope.deleteComment = function (comment) {
         $scope.comments.$remove(comment);
       };
+      $scope.isActive = function () {
+        setTimeout(function () {
+          console.log('Checking status every 3 seconds. Currently: ' + $scope.auction.auctionstatus);
+          if ($scope.auction.auctionstatus !== 'active') {
+            location.reload();
+          }
+          $scope.isActive();
+        }, 3000);
+      };
+      $scope.isActive();
     });
   }
 ]);
@@ -613,6 +631,7 @@ app.factory('Post', [
     var refUserPosts = ref.child('user_posts');
     var refWinList = ref.child('win_list');
     var refAuctionQueue = ref.child('auction_queue');
+    var refZapierQueue = ref.child('zapier_queue');
     var posts = $firebase(refPosts).$asArray();
     // pass reference into $firebase, which provdes wrapper helper functions
     var Post = {
@@ -637,9 +656,10 @@ app.factory('Post', [
         closeAuction: function (auction) {
           auction.auctionstatus = 'complete';
           auction.endTime = Firebase.ServerValue.TIMESTAMP;
-          debugger;
+          //debugger;
           return auction.$save().then(function (auctionRef) {
-            debugger;
+            //debugger;
+            $firebase(refZapierQueue).$asArray().$add(auction);
             Queue.deQueue(auction.$id);
             $firebase(refWinList.child(auction.winningBidderUID)).$push(auction.$id);
             return auctionRef;
@@ -660,6 +680,15 @@ app.factory('Post', [
         get: function (auctionId) {
           console.log('Post.get(' + auctionId + ')');
           return $firebase(refPosts.child(auctionId)).$asObject();
+        },
+        getList: function (postIdArray) {
+          var posts = {};
+          for (var i = 0; i < postIdArray.length; i++) {
+            // loop over each post 
+            var value = postIdArray[i].$value;
+            posts[value] = Post.get(value);
+          }
+          return posts;
         },
         delete: function (post) {
           posts.$remove(post);
@@ -694,8 +723,13 @@ app.factory('Auth', [
           ref.$createUser({
             email: user.email,
             password: user.password
+          }).then(function success() {
+            console.log('register user success');
+            callback(null, user);
+          }, function error(error) {
+            console.log('register user error');
+            callback(error, user);
           });
-          callback(null, user);
         },
         createProfile: function (user, callback) {
           var profile = {
@@ -703,25 +737,33 @@ app.factory('Auth', [
               uid: user.uid,
               md5_hash: user.md5_hash
             };
-          console.log('trying to write user profile', user.uid, profile);
+          console.log('Auth.createProfile(): trying to write user profile', user.uid, profile);
           $firebase(refProfile).$set(user.uid, profile).then(function () {
+            console.log('Auth.createProfile() Succesful creation event');
             callback(null);
           }, function (error) {
+            console.log('Auth.createProfile() Error');
             callback(error);
           });
         },
-        login: function (user) {
+        login: function (user, successCallback, failCallback) {
           console.log('trying to log in');
-          return ref.$authWithPassword(user);
+          ref.$authWithPassword(user).then(function (authData) {
+            console.log('Auth.login() success');
+            successCallback(authData);
+          }, function (error) {
+            console.log('Auth.login() error');
+            failCallback(error);
+          });
         },
         logout: function () {
           console.log('trying to log out');
-          ref.$logout();
+          oldref.unauth();
         },
         resolveUser: function () {
           console.log('getting current user');
           //return ref.$getCurrentUser();
-          return defer.promise;
+          return defer.promise;  // resolved by ref.$onAuth
         },
         signedIn: function () {
           return Auth.user && Auth.user.provider;
@@ -832,7 +874,12 @@ app.factory('Profile', [
     var winListRef = ref.child('win_list');
     var profile = {
         get: function (userId) {
+          console.log('profile.get(' + userId + ')');
           return $firebase(profileRef.child(userId)).$asObject();
+        },
+        all: function () {
+          console.log('profile.all()');
+          return $firebase(profileRef).$asArray();
         },
         getPosts: function (userId) {
           var defer = $q.defer();
@@ -940,6 +987,7 @@ app.factory('Queue', [
     var queue = {
         deQueue: function (auctionId) {
           var defer = $q.defer();
+          console.log('queue.deQueue()');
           $firebase(queueRef).$asArray().$loaded().then(function (data) {
             // then 
             var posts = {};
@@ -955,13 +1003,27 @@ app.factory('Queue', [
           });
           return defer.promise;
         },
-        getQueue: function () {
+        getFirst: function () {
           var defer = $q.defer();
-          console.log('trying to get queue');
+          console.log('Queue.getFirst(): retrieving next in queue');
           $firebase(queueRef).$asArray().$loaded().then(function (data) {
             // then 
-            console.log('promised content');
-            defer.resolve(data[0].$value);
+            if (data[0]) {
+              console.log('Queue.getFirst(): promised content');
+              defer.resolve(data[0].$value);
+            } else {
+            }
+          });
+          console.log('Queue.getFirst(): sending promise');
+          return defer.promise;
+        },
+        all: function () {
+          var defer = $q.defer();
+          console.log('Queue.all(): returning entire queue');
+          $firebase(queueRef).$asArray().$loaded().then(function (data) {
+            // then 
+            console.log('Queue.all(): promised content');
+            defer.resolve(data);
           });
           console.log('sending promise');
           return defer.promise;

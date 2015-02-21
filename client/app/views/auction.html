@@ -51,19 +51,19 @@
                 <button class="btn btn-success" 
                         ng-show="auction.auctionstatus === 'active'"
                         ng-click="closeAuction(auction)"
-                        type="button">Close Bidding</button>
+                        type="button"><i class="fa fa-bell"></i> Close Bidding</button>
             </span>
             <span class="btn-group" role="group">                                        
                 <button class="btn btn-info" 
                         ng-show="auction.auctionstatus === 'complete'"
                         ng-click="activateAuction(auction.$id, user.profile.username, user.profile.uid)"
-                        type="button">Nominate</button>
+                        type="button"><i class="fa fa-user-plus"></i> Nominate</button>
             </span>
             <span class="btn-group" role="group">                                        
                 <button class="btn btn-info" 
                         ng-show="auction.auctionstatus === 'active'"
                         ng-click="deActivateAuction(auction.$id)"
-                        type="button">De-nominate</button>
+                        type="button"><i class="fa fa-user-times"></i> De-nominate</button>
             </span>
             <!-- <span class="btn-group" role="group">
                 <button class="btn btn-danger" 
@@ -178,5 +178,38 @@
             </div>
         </div>
         <!-- /comments -->
+    </div>
+    <div class="col-sm-6">
+        <!-- bids -->
+        <div class="panel panel-primary">
+            <div class="panel-heading"><i class="fa fa-server"></i> Queue</div>
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th class="text-center">Player</th>
+                        <th class="text-center">Positions</th>
+                        <th class="text-center">Nominator</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="auction in queue">
+                        <td>{{$index+1}}</td>
+                        <td>{{auction.title}}</td>
+                        <td>
+                            <span class="label label-success" ng-show="auction.position.fullback">FB</span>
+                            <span class="label label-success" ng-show="auction.position.wing">W</span>
+                            <span class="label label-success" ng-show="auction.position.centre">C</span>
+                            <span class="label label-success" ng-show="auction.position.halfback">HB</span>
+                            <span class="label label-warning" ng-show="auction.position.hooker">HK</span>
+                            <span class="label label-warning" ng-show="auction.position.backrow">BR</span>
+                            <span class="label label-warning" ng-show="auction.position.prop">PR</span>
+                            <span class="label label-info" ng-show="auction.position.goalkick">GK</span>
+                        </td>
+                        <td><a ng-href="#/users/{{ auction.creatorUID}}">{{auction.creatorName| capitaliseFirstLetter}}</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
