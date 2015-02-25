@@ -5,16 +5,17 @@
  */
 app.controller('ActiveAuctionControl', ['$scope', '$routeParams', 'Post', 'Auth', '$firebase', 'Queue', '$location', function ($scope, $routeParams, Post, Auth, $firebase, Queue, $location) {
         //$scope.auction;
+
+        Queue.all().then(function (queuePostIds) {
+            console.log(queuePostIds);
+            $scope.queueorder = queuePostIds;
+            $scope.queue = Post.getList(queuePostIds);
+        });
+
         Queue.getFirst().then(function (nextAuctionId) {
             $scope.auction = Post.get(nextAuctionId); // get the postId from the URL
             $scope.comments = Post.comments(nextAuctionId);
             $scope.bids = Post.bids(nextAuctionId);
-
-            Queue.all().then(function (queuePostIds) {
-                console.log(queuePostIds);
-                $scope.queue = Post.getList(queuePostIds);
-            });
-            //
 
             $scope.placeBid = function (increment) {
                 $scope.errorMsg = '';

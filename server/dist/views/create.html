@@ -1,1 +1,85 @@
-<div class="container"> <form name="helpForm" novalidate role="form" class="form-horizontal" ng-submit="createAuction();"> <div class="form-group"> <label class="control-label col-sm-3" for="txt-auction-title">Auction Title</label> <div class="col-sm-9"> <input type="text" class="form-control" id="txt-auction-title" ng-model="title"> </div> </div> <div class="form-group"> <label class="control-label col-sm-3" for="txt-start-price">Starting Price</label> <div class="col-sm-9"> <input type="number" min="0" class="form-control" id="txt-start-price" ng-model="startPrice"> </div> </div> <div class="form-group"> <label class="control-label col-sm-3" for="endTime">End At</label> <div class="col-sm-9"> <div class="input-group"> <input type="text" class="form-control datetimepicker" id="endTime" ng-model="endTime" ng-blur="timeLeft()" data-date-format="dddd DD MMM, h:mm A"> <label class="input-group-addon" for="endTime"> <span class="glyphicon glyphicon-calendar"></span> </label> </div> <span class="help-block" ng-show="timeLeftString">Ending <span class="timeleft" ng-bind="timeLeftString"></span></span> </div> </div> <div class="form-group"> <label class="control-label col-sm-3" for="txt-description">Club</label> <div class="col-sm-9"> <select id="ddl_club" ng-model="club" class="form-control"> <option value="">Choose Club <option value="Knights">Knights <option value="Dragons">Dragons <option value="Eels">Eels <option value="Sea Eagles">Sea Eagles <option value="Panthers">Panthers <option value="Titans">Titans <option value="Cowboys">Cowboys <option value="Broncos">Broncos <option value="Raiders">Raiders <option value="Sharks">Sharks <option value="Bulldogs">Bulldogs <option value="Tigers">Tigers <option value="Storm">Storm <option value="Rabbitohs">Rabbitohs <option value="Roosters">Roosters </select> </div> </div> <div class="form-group"> <label class="control-label col-sm-3" for="txt-description">Positions</label> <div class="col-sm-9"> <div class="checkbox"><label><input type="checkbox" ng-model="position.fullback" ng-true-value="true" ng-false-value="false">Fullback</label></div> <div class="checkbox"><label><input type="checkbox" ng-model="position.wing" ng-true-value="true" ng-false-value="false">Wing</label></div> <div class="checkbox"><label><input type="checkbox" ng-model="position.centre" ng-true-value="true" ng-false-value="false">Centre</label></div> <div class="checkbox"><label><input type="checkbox" ng-model="position.halfback" ng-true-value="true" ng-false-value="false">Halfback</label></div> <div class="checkbox"><label><input type="checkbox" ng-model="position.hooker" ng-true-value="true" ng-false-value="false">Hooker</label></div> <div class="checkbox"><label><input type="checkbox" ng-model="position.backrow" ng-true-value="true" ng-false-value="false">Backrow</label></div> <div class="checkbox"><label><input type="checkbox" ng-model="position.prop" ng-true-value="true" ng-false-value="false">Prop</label></div> <div class="checkbox"><label><input type="checkbox" ng-model="position.goalkick" ng-true-value="true" ng-false-value="false">Goal Kick</label></div> </div> </div> <div class="form-group"> <label class="control-label col-sm-3" for="txt-description">Description</label> <div class="col-sm-9"> <textarea id="txt-description" class="form-control" placeholder="About the product" style="resize:vertical" ng-model="description"></textarea> </div> </div> <div class="row"> <div class="col-sm-9 col-sm-offset-3"> <button type="submit" class="btn btn-primary">Create Auction</button> </div> </div> </form> </div>
+<div class="container">
+    <form name="helpForm" novalidate role="form" class="form-horizontal" ng-submit="createAuction();" >
+        <div class="form-group">
+            <label class="control-label col-sm-3" for="txt-auction-title">Auction Title</label>
+            <div class="col-sm-9">
+                <input type="text" 
+                       class="form-control" 
+                       id="txt-auction-title" 
+                       ng-model='title' />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-3" for="txt-start-price">Starting Price</label>
+            <div class="col-sm-9">
+                <input type="number" min="0" class="form-control" id="txt-start-price"
+                       ng-model='startPrice'>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-3" for="endTime">End At</label>
+            <div class="col-sm-9">
+                <div class='input-group'>
+                    <input type='text' 
+                           class="form-control datetimepicker" 
+                           id='endTime' 
+                           ng-model='endTime'
+                           ng-blur="timeLeft()"
+                           data-date-format="dddd DD MMM, h:mm A"/>
+                    <label class="input-group-addon" for='endTime'>
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </label>                    
+                </div>
+                <span class="help-block" ng-show="timeLeftString">Ending <span class='timeleft' ng-bind="timeLeftString"></span></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-3" for="txt-description">Club</label>
+            <div class="col-sm-9">
+                <select id="ddl_club" ng-model="club" class="form-control">
+                    <option value="">Choose Club</option>
+                    <option value="Knights">Knights</option>
+                    <option value="Dragons">Dragons</option>
+                    <option value="Eels">Eels</option>
+                    <option value="Sea Eagles">Sea Eagles</option>
+                    <option value="Panthers">Panthers</option>
+                    <option value="Titans">Titans</option>
+                    <option value="Cowboys">Cowboys</option>
+                    <option value="Broncos">Broncos</option>
+                    <option value="Raiders">Raiders</option>
+                    <option value="Sharks">Sharks</option>
+                    <option value="Bulldogs">Bulldogs</option>
+                    <option value="Tigers">Tigers</option>
+                    <option value="Storm">Storm</option>
+                    <option value="Rabbitohs">Rabbitohs</option>
+                    <option value="Roosters">Roosters</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-3" for="txt-description">Positions</label>
+            <div class="col-sm-9">
+                <div class="checkbox"><label><input type="checkbox" ng-model="position.fullback" ng-true-value="true" ng-false-value="false" />Fullback</label></div>
+                <div class="checkbox"><label><input type="checkbox" ng-model="position.wing" ng-true-value="true" ng-false-value="false" />Wing</label></div>
+                <div class="checkbox"><label><input type="checkbox" ng-model="position.centre" ng-true-value="true" ng-false-value="false"  />Centre</label></div>
+                <div class="checkbox"><label><input type="checkbox" ng-model="position.halfback" ng-true-value="true" ng-false-value="false"  />Halfback</label></div>
+                <div class="checkbox"><label><input type="checkbox" ng-model="position.hooker" ng-true-value="true" ng-false-value="false"  />Hooker</label></div>
+                <div class="checkbox"><label><input type="checkbox" ng-model="position.backrow" ng-true-value="true" ng-false-value="false"  />Backrow</label></div>
+                <div class="checkbox"><label><input type="checkbox" ng-model="position.prop" ng-true-value="true" ng-false-value="false"  />Prop</label></div>
+                <div class="checkbox"><label><input type="checkbox" ng-model="position.goalkick" ng-true-value="true" ng-false-value="false"  />Goal Kick</label></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-3" for="txt-description">Description</label>
+            <div class="col-sm-9">
+                <textarea id='txt-description' class="form-control" placeholder='About the product' style='resize:vertical'
+                          ng-model='description'></textarea>
+            </div>
+        </div>
+        <div class='row'>
+            <div class='col-sm-9 col-sm-offset-3'>                
+                <button type="submit" class="btn btn-primary">Create Auction</button>
+            </div>
+        </div>
+    </form>
+</div>

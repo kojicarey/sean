@@ -79,7 +79,7 @@ app.factory('Post', ['$firebase', 'FIREBASE_URL', 'Queue', function ($firebase, 
 
                 for (var i = 0; i < postIdArray.length; i++) { // loop over each post 
                     var value = postIdArray[i].$value;
-                    posts[value] = Post.get(value);
+                    posts[i] = Post.get(value);
                 }
                 return posts;
             },
